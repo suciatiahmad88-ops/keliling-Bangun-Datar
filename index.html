@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taman Geometri: Petualangan Keliling Bangun Datar (Kelas 5 SD)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Fredoka (ceria & ramah anak) & Nunito (mudah dibaca) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Fredoka', 'cursive', 'sans-serif'],
+                        sans: ['Nunito', 'sans-serif'],
+                    },
+                    colors: {
+                        skysoft: '#E0F2FE',
+                        meadow: '#DCFCE7',
+                        sunshine: '#FEF08A',
+                        coral: '#FF6B6B',
+                        mint: '#10B981',
+                        blueberry: '#3B82F6',
+                        grape: '#8B5CF6',
+                        tangerine: '#F97316',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background: linear-gradient(135deg, #E0F2FE 0%, #F0FDF4 50%, #FEF9C3 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            user-select: none;
+        }
+        h1, h2, h3, h4, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Tombol 3D Ceria ala Game Edukasi */
+        .btn-game {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 5px 0 rgba(0, 0, 0, 0.18);
+            position: relative;
+            top: 0;
+        }
+        .btn-game:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-game:active:not(:disabled) {
+            top: 4px;
+            box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2);
+        }
+        .btn-game:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Animasi Mengambang & Denyut */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-float {
+            animation: float 3.2s ease-in-out infinite;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.04); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.35s ease-out forwards;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-6px); }
+            75% { transform: translateX(6px); }
+        }
+        .animate-shake {
+            animation: shake 0.35s ease-in-out;
+        }
+
+        /* Animasi Garis Keliling Berjalan (Simulasi) */
+        @keyframes dashWalk {
+            to {
+                stroke-dashoffset: -40;
+            }
+        }
+        .perimeter-walk {
+            stroke-dasharray: 12 8;
+            animation: dashWalk 1s linear infinite;
+        }
+
+        /* Konfeti Partikel */
+        .confetti-piece {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 9999;
+            pointer-events: none;
+            animation: confettiFall 2.4s ease-out forwards;
+        }
+        @keyframes confettiFall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(105vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Custom Scrollbar ramah anak */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #93c5fd;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #60a5fa;
+        }
+
+        /* Styling Drag & Drop */
+        .draggable-item.selected {
+            ring: 4px;
+            outline: 4px solid #F59E0B;
+            transform: scale(1.04);
+            background-color: #FEF3C7;
+        }
+        .drop-zone.drag-over {
+            background-color: #DBEAFE;
+            border-color: #2563EB;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body class="text-slate-800 flex flex-col">
+
+    <!-- HEADER / TOP BAR -->
+    <header class="bg-white/95 backdrop-blur-md shadow-md sticky top-0 z-40 border-b-4 border-sky-200">
+        <div class="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 flex flex-wrap items-center justify-between gap-2">
+            <!-- Logo & Judul -->
+            <div class="flex items-center gap-2.5 cursor-pointer" onclick="switchTab('beranda')">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-tr from-amber-400 via-orange-400 to-rose-400 flex items-center justify-center text-white text-2xl shadow-md">
+                    📐
+                </div>
+                <div>
+                    <h1 class="text-lg sm:text-xl font-bold text-sky-700 leading-tight">Taman Geometri</h1>
+                    <p class="text-xs font-bold text-emerald-600">Keliling Bangun Datar • Kelas 5 SD</p>
+                </div>
+            </div>
+
+            <!-- Info Skor, Level & Suara -->
+            <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Badge Level -->
+                <div id="headerLevelBadge" class="hidden sm:flex items-center gap-1.5 bg-purple-100 text-purple-800 px-3 py-1.5 rounded-full text-xs font-extrabold border-2 border-purple-200">
+                    <span>🌟</span>
+                    <span id="headerLevelText">Level: Penjelajah</span>
+                </div>
+
+                <!-- Total Skor -->
+                <div class="flex items-center gap-1.5 bg-amber-100 text-amber-900 px-3 py-1.5 rounded-full text-xs sm:text-sm font-extrabold border-2 border-amber-300 shadow-sm">
+                    <span>⭐</span>
+                    <span id="headerScore">0</span>
+                    <span class="hidden sm:inline">Poin</span>
+                </div>
+
+                <!-- Tombol Mute/Unmute -->
+                <button id="btnSoundToggle" onclick="toggleSound()" title="Suara Efek" class="btn-game bg-sky-100 hover:bg-sky-200 text-sky-700 w-10 h-10 rounded-xl flex items-center justify-center text-lg border-2 border-sky-300">
+                    🔊
+                </button>
+            </div>
+        </div>
+
+        <!-- Progress Bar Keseluruhan -->
+        <div class="bg-slate-100 h-2.5 w-full overflow-hidden">
+            <div id="globalProgressBar" class="bg-gradient-to-r from-emerald-400 via-sky-500 to-purple-500 h-full transition-all duration-500" style="width: 0%"></div>
+        </div>
+
+        <!-- MENU NAVIGASI UTAMA (6 Menu) -->
+        <nav class="bg-sky-50/90 border-t border-sky-100">
+            <div class="max-w-6xl mx-auto px-2 py-2 flex items-center justify-start sm:justify-center gap-1.5 sm:gap-2.5 overflow-x-auto no-scrollbar">
+                <button onclick="switchTab('beranda')" data-tab="beranda" class="nav-btn btn-game px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap flex items-center gap-1.5 bg-sky-500 text-white">
+                    <span>🏠</span> Beranda
+                </button>
+                <button onclick="switchTab('materi')" data-tab="materi" class="nav-btn btn-game px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap flex items-center gap-1.5 bg-white text-slate-700 hover:bg-emerald-50">
+                    <span>📚</span> Materi
+                </button>
+                <button onclick="switchTab('simulasi')" data-tab="simulasi" class="nav-btn btn-game px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap flex items-center gap-1.5 bg-white text-slate-700 hover:bg-amber-50">
+                    <span>🔬</span> Simulasi
+                </button>
+                <button onclick="switchTab('permainan')" data-tab="permainan" class="nav-btn btn-game px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap flex items-center gap-1.5 bg-white text-slate-700 hover:bg-rose-50">
+                    <span>🎮</span> Permainan
+                </button>
+                <button onclick="switchTab('kuis')" data-tab="kuis" class="nav-btn btn-game px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap flex items-center gap-1.5 bg-white text-slate-700 hover:bg-purple-50">
+                    <span>📝</span> Kuis
+                </button>
+                <button onclick="switchTab('hasil')" data-tab="hasil" class="nav-btn btn-game px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap flex items-center gap-1.5 bg-white text-slate-700 hover:bg-orange-50">
+                    <span>🏆</span> Hasil
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-3 sm:px-6 py-6">
+
+        <!-- ========================================================= -->
+        <!-- 1. MENU BERANDA                                           -->
+        <!-- ========================================================= -->
+        <section id="tab-beranda" class="tab-content animate-pop space-y-6">
+            <!-- Hero Banner -->
+            <div class="bg-gradient-to-br from-sky-500 via-blue-500 to-indigo-600 rounded-3xl p-6 sm:p-10 text-white shadow-xl relative overflow-hidden border-4 border-white">
+                <!-- Dekorasi Bangun Datar Melayang -->
+                <div class="hidden md:block absolute right-8 top-6 opacity-25 animate-float">
+                    <svg width="160" height="160" viewBox="0 0 160 160">
+                        <polygon points="80,10 150,140 10,140" fill="none" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+                        <rect x="35" y="45" width="90" height="90" fill="none" stroke="#FDE047" stroke-width="6" rx="8"/>
+                    </svg>
+                </div>
+
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <span class="inline-block bg-amber-400 text-slate-900 font-extrabold text-xs sm:text-sm px-4 py-1.5 rounded-full shadow">
+                        🚀 Misi Matematika Kelas 5 SD
+                    </span>
+                    <h2 class="text-3xl sm:text-4xl md:text-5xl font-bold leading-tight">
+                        Selamat Datang di Taman Geometri!
+                    </h2>
+                    <p class="text-sky-100 text-base sm:text-lg font-semibold leading-relaxed">
+                        Ayo bertualang menghitung <strong>keliling segitiga, segiempat, dan segi banyak</strong> dengan simulasi seru, permainan interaktif, dan tantangan berhadiah lencana!
+                    </p>
+
+                    <!-- Input Nama Siswa -->
+                    <div class="bg-white/15 backdrop-blur-sm p-4 rounded-2xl border border-white/30 max-w-md">
+                        <label for="studentNameInput" class="block text-xs font-extrabold uppercase tracking-wider text-amber-200 mb-1.5">
+                            ✏️ Tulis Namamu Sebelum Bertualang:
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="text" id="studentNameInput" placeholder="Contoh: Budi Santoso" maxlength="25"
+                                class="w-full px-4 py-2.5 rounded-xl text-slate-800 font-bold focus:outline-none focus:ring-4 focus:ring-amber-300"
+                                onchange="saveStudentName(this.value)">
+                            <button onclick="saveStudentName(document.getElementById('studentNameInput').value); showToast('Nama tersimpan! Semangat belajar, ' + state.studentName + '! 🎉')"
+                                class="btn-game bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold px-4 py-2.5 rounded-xl whitespace-nowrap">
+                                Simpan
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tombol Aksi Cepat -->
+                    <div class="flex flex-wrap gap-3 pt-2">
+                        <button onclick="switchTab('materi')" class="btn-game bg-emerald-400 hover:bg-emerald-300 text-slate-900 font-extrabold px-6 py-3.5 rounded-2xl text-base sm:text-lg flex items-center gap-2">
+                            <span>📚</span> Mulai Belajar Materi
+                        </button>
+                        <button onclick="switchTab('permainan')" class="btn-game bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold px-6 py-3.5 rounded-2xl text-base sm:text-lg flex items-center gap-2">
+                            <span>🎮</span> Langsung Bermain
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ringkasan Status & Peta Misi Belajar -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+                <!-- Kartu Progres Petualangan -->
+                <div class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-sky-200 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <h3 class="text-xl font-bold text-slate-800">📊 Progres Kamu</h3>
+                            <span id="homeProgressPercent" class="bg-sky-100 text-sky-700 font-extrabold px-3 py-1 rounded-full text-sm">0%</span>
+                        </div>
+                        <p class="text-sm text-slate-600 font-semibold mb-4">
+                            Halo, <span id="homeGreetingName" class="text-sky-600 font-extrabold">Petualang Cilik</span>! Selesaikan semua aktivitas untuk membuka seluruh lencana.
+                        </p>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="w-full bg-slate-100 h-4 rounded-full overflow-hidden p-0.5 border border-slate-200">
+                            <div id="homeProgressBar" class="bg-gradient-to-r from-emerald-400 to-sky-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                        <div class="flex justify-between text-xs font-bold text-slate-500">
+                            <span>Level: <strong id="homeLevelText" class="text-purple-600">Penjelajah Pemula</strong></span>
+                            <span>Lencana: <strong id="homeBadgeCount" class="text-amber-600">0/6</strong></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kartu Misi 1 & 2 -->
+                <div class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-emerald-200 space-y-3">
+                    <h3 class="text-xl font-bold text-emerald-700">🗺️ Langkah 1 & 2: Pahami & Coba</h3>
+                    <div onclick="switchTab('materi')" class="p-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 cursor-pointer transition flex items-center gap-3 border border-emerald-200">
+                        <span class="text-2xl">📖</span>
+                        <div>
+                            <h4 class="font-extrabold text-sm text-emerald-900">1. Pelajari Konsep & Rumus</h4>
+                            <p class="text-xs text-emerald-700">Segitiga, Segiempat, dan Segi Banyak</p>
+                        </div>
+                    </div>
+                    <div onclick="switchTab('simulasi')" class="p-3 rounded-2xl bg-amber-50 hover:bg-amber-100 cursor-pointer transition flex items-center gap-3 border border-amber-200">
+                        <span class="text-2xl">🔬</span>
+                        <div>
+                            <h4 class="font-extrabold text-sm text-amber-900">2. Lab Simulasi Interaktif</h4>
+                            <p class="text-xs text-amber-700">Ubah panjang sisi & lihat perubahan keliling</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kartu Misi 3 & 4 -->
+                <div class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-purple-200 space-y-3">
+                    <h3 class="text-xl font-bold text-purple-700">🎯 Langkah 3 & 4: Main & Juara</h3>
+                    <div onclick="switchTab('permainan')" class="p-3 rounded-2xl bg-rose-50 hover:bg-rose-100 cursor-pointer transition flex items-center gap-3 border border-rose-200">
+                        <span class="text-2xl">🎲</span>
+                        <div>
+                            <h4 class="font-extrabold text-sm text-rose-900">3. 4 Wahana Permainan Seru</h4>
+                            <p class="text-xs text-rose-700">Open the Box, Drag & Drop, Isian, Jodohkan</p>
+                        </div>
+                    </div>
+                    <div onclick="switchTab('kuis')" class="p-3 rounded-2xl bg-purple-50 hover:bg-purple-100 cursor-pointer transition flex items-center gap-3 border border-purple-200">
+                        <span class="text-2xl">⚡</span>
+                        <div>
+                            <h4 class="font-extrabold text-sm text-purple-900">4. Kuis & Tantangan Cepat</h4>
+                            <p class="text-xs text-purple-700">Pilihan Ganda, Benar/Salah & Kejar Waktu</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 2. MENU MATERI                                            -->
+        <!-- ========================================================= -->
+        <section id="tab-materi" class="tab-content hidden animate-pop space-y-6">
+            <!-- Header Materi & Konsep Dasar -->
+            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-md border-b-4 border-emerald-300">
+                <div class="flex flex-col md:flex-row items-center gap-6">
+                    <div class="flex-1 space-y-3">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full">💡 Konsep Utama</span>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">Apa itu Keliling Bangun Datar?</h2>
+                        <p class="text-slate-600 text-base sm:text-lg leading-relaxed">
+                            Bayangkan kamu berjalan mengelilingi tepi lapangan sekolah dari titik awal sampai kembali ke titik itu lagi. Nah, <strong>Keliling Bangun Datar</strong> adalah <span class="bg-amber-200 px-2 py-0.5 rounded-lg font-extrabold text-slate-900">jumlah panjang seluruh sisi</span> yang mengelilingi bangun datar tersebut!
+                        </p>
+                        <div class="bg-sky-50 border-l-4 border-sky-500 p-4 rounded-r-2xl">
+                            <p class="text-sm font-extrabold text-sky-900">🌟 Kunci Utama yang Mudah Diingat:</p>
+                            <p class="text-sm text-sky-800 mt-1">Jika lupa rumus cepatnya, cukup <strong>jumlahkan semua panjang sisi luarnya</strong>! Jangan menghitung garis di bagian dalam bangun ya.</p>
+                        </div>
+                    </div>
+                    <!-- Ilustrasi Konsep Keliling -->
+                    <div class="w-full md:w-64 bg-emerald-50 rounded-2xl p-4 border-2 border-emerald-200 flex flex-col items-center">
+                        <svg width="180" height="130" viewBox="0 0 180 130">
+                            <rect x="30" y="25" width="120" height="80" rx="8" fill="#A7F3D0" stroke="#059669" stroke-width="4"/>
+                            <rect x="30" y="25" width="120" height="80" rx="8" fill="none" stroke="#F59E0B" stroke-width="4" class="perimeter-walk"/>
+                            <circle cx="30" cy="25" r="7" fill="#EF4444"/>
+                            <text x="90" y="18" text-anchor="middle" font-size="12" font-weight="bold" fill="#065F46">Sisi Atas</text>
+                            <text x="90" y="122" text-anchor="middle" font-size="12" font-weight="bold" fill="#065F46">Sisi Bawah</text>
+                            <text x="15" y="70" text-anchor="middle" font-size="11" font-weight="bold" fill="#065F46" transform="rotate(-90 15,70)">Kiri</text>
+                            <text x="165" y="70" text-anchor="middle" font-size="11" font-weight="bold" fill="#065F46" transform="rotate(90 165,70)">Kanan</text>
+                            <text x="90" y="70" text-anchor="middle" font-size="13" font-weight="800" fill="#047857">Keliling = Tepi</text>
+                        </svg>
+                        <span class="text-xs font-bold text-emerald-700 mt-1">Garis putus-putus = Keliling</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Kategori Materi -->
+            <div class="flex flex-wrap gap-2 justify-center">
+                <button onclick="filterMateri('semua')" class="materi-filter-btn btn-game px-4 py-2 rounded-xl text-sm font-extrabold bg-emerald-500 text-white" data-cat="semua">🌈 Semua Bangun</button>
+                <button onclick="filterMateri('segitiga')" class="materi-filter-btn btn-game px-4 py-2 rounded-xl text-sm font-extrabold bg-white text-slate-700" data-cat="segitiga">🔺 Segitiga</button>
+                <button onclick="filterMateri('segiempat')" class="materi-filter-btn btn-game px-4 py-2 rounded-xl text-sm font-extrabold bg-white text-slate-700" data-cat="segiempat">🟦 Segiempat</button>
+                <button onclick="filterMateri('segibanyak')" class="materi-filter-btn btn-game px-4 py-2 rounded-xl text-sm font-extrabold bg-white text-slate-700" data-cat="segibanyak">⬡ Segi Banyak</button>
+            </div>
+
+            <!-- Grid Kartu Materi Bangun Datar -->
+            <div id="materiCardsContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Diisi dinamis oleh JS agar bersih & lengkap -->
+            </div>
+
+            <!-- Kotak Contoh Soal Langkah demi Langkah -->
+            <div class="bg-gradient-to-r from-amber-50 to-orange-50 rounded-3xl p-6 sm:p-8 border-2 border-amber-200 shadow-sm">
+                <h3 class="text-xl sm:text-2xl font-bold text-amber-900 mb-4 flex items-center gap-2">
+                    <span>🧠</span> Contoh Soal & Cara Penyelesaian Mudah
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-amber-200 space-y-2">
+                        <span class="bg-sky-100 text-sky-800 text-xs font-extrabold px-2.5 py-1 rounded-lg">Contoh 1: Menghitung Keliling</span>
+                        <p class="font-bold text-slate-800">Sebuah taman berbentuk persegi panjang memiliki panjang 12 m dan lebar 8 m. Berapa keliling taman tersebut?</p>
+                        <div class="bg-slate-50 p-3 rounded-xl text-sm space-y-1 text-slate-700">
+                            <p><strong>Diketahui:</strong> p = 12 m, l = 8 m</p>
+                            <p><strong>Rumus:</strong> K = 2 × (p + l)</p>
+                            <p><strong>Hitung:</strong> K = 2 × (12 + 8) = 2 × 20 = <span class="text-emerald-600 font-extrabold">40 m</span></p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-amber-200 space-y-2">
+                        <span class="bg-purple-100 text-purple-800 text-xs font-extrabold px-2.5 py-1 rounded-lg">Contoh 2: Mencari Panjang Sisi</span>
+                        <p class="font-bold text-slate-800">Keliling sebuah bingkai foto berbentuk persegi adalah 36 cm. Berapa panjang setiap sisi bingkai itu?</p>
+                        <div class="bg-slate-50 p-3 rounded-xl text-sm space-y-1 text-slate-700">
+                            <p><strong>Diketahui:</strong> K = 36 cm (Persegi punya 4 sisi sama panjang)</p>
+                            <p><strong>Rumus:</strong> s = K ÷ 4</p>
+                            <p><strong>Hitung:</strong> s = 36 ÷ 4 = <span class="text-emerald-600 font-extrabold">9 cm</span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 text-center">
+                    <button onclick="markMateriCompleted()" class="btn-game bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-6 py-3 rounded-2xl text-sm sm:text-base">
+                        ✅ Saya Sudah Paham Materinya! (+20 Poin)
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 3. MENU SIMULASI (LAB KELILING INTERAKTIF)                -->
+        <!-- ========================================================= -->
+        <section id="tab-simulasi" class="tab-content hidden animate-pop space-y-6">
+            <div class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-amber-300">
+                <div class="flex flex-wrap items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-2xl sm:text-3xl font-bold text-slate-800">🔬 Lab Simulasi Keliling</h2>
+                        <p class="text-sm text-slate-600 font-semibold">Ubah ukuran sisi bangun datar dan amati bagaimana rumus dan kelilingnya berubah secara langsung!</p>
+                    </div>
+                    <span class="bg-amber-100 text-amber-800 px-3 py-1.5 rounded-full text-xs font-extrabold border border-amber-300">
+                        Eksplorasi Sebab-Akibat
+                    </span>
+                </div>
+
+                <!-- Pilihan Bangun Datar -->
+                <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 mb-6">
+                    <button onclick="setSimShape('persegi')" data-sim="persegi" class="sim-shape-btn btn-game py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-500 text-white">🟦 Persegi</button>
+                    <button onclick="setSimShape('persegipanjang')" data-sim="persegipanjang" class="sim-shape-btn btn-game py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700">▭ Persegi Panjang</button>
+                    <button onclick="setSimShape('segitigasamasisi')" data-sim="segitigasamasisi" class="sim-shape-btn btn-game py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700">🔺 Segitiga Sama Sisi</button>
+                    <button onclick="setSimShape('segitigasembarang')" data-sim="segitigasembarang" class="sim-shape-btn btn-game py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700">📐 Segitiga Siku-Siku</button>
+                    <button onclick="setSimShape('segibanyak')" data-sim="segibanyak" class="sim-shape-btn btn-game py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700 col-span-2 sm:col-span-1">⬡ Segi Banyak</button>
+                </div>
+
+                <!-- Area Utama Simulasi: Kanvas SVG Kiri, Kontrol & Rumus Kanan -->
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                    <!-- Visualisasi SVG Real-Time -->
+                    <div class="lg:col-span-7 bg-gradient-to-b from-sky-50 to-emerald-50 rounded-3xl p-4 border-2 border-dashed border-sky-300 flex flex-col items-center justify-center min-h-[310px] relative">
+                        <div class="absolute top-3 left-3 bg-white/90 px-3 py-1 rounded-full text-xs font-extrabold text-sky-700 shadow-sm">
+                            🏃 Animasi Pagar Keliling Aktif
+                        </div>
+                        <svg id="simSvgCanvas" width="100%" height="260" viewBox="0 0 360 260" class="max-w-md overflow-visible">
+                            <!-- Dirender via JS -->
+                        </svg>
+                        <p id="simObservationText" class="text-xs sm:text-sm font-bold text-center text-emerald-800 bg-white/90 px-4 py-2 rounded-xl mt-2 shadow-sm">
+                            Jika setiap sisi diperpanjang, maka keliling akan bertambah besar secara teratur!
+                        </p>
+                    </div>
+
+                    <!-- Kontrol Slider & Perhitungan Live -->
+                    <div class="lg:col-span-5 space-y-4">
+                        <div id="simControlsBox" class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-4">
+                            <!-- Sliders dirender dinamis sesuai bangun -->
+                        </div>
+
+                        <!-- Kotak Hasil Rumus Live -->
+                        <div class="bg-gradient-to-br from-indigo-600 to-blue-600 text-white p-5 rounded-2xl shadow-lg space-y-2">
+                            <p class="text-xs uppercase tracking-wider font-extrabold text-sky-200">🧮 Perhitungan Keliling Otomatis:</p>
+                            <p id="simFormulaDisplay" class="text-sm sm:text-base font-bold text-amber-200">Rumus: K = 4 × s</p>
+                            <p id="simStepDisplay" class="text-base sm:text-lg font-extrabold">K = 4 × 6 cm</p>
+                            <div class="pt-2 border-t border-white/20 flex items-baseline justify-between">
+                                <span class="text-sm font-bold">Total Keliling:</span>
+                                <span id="simResultDisplay" class="text-3xl font-display font-bold text-amber-300">24 cm</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Misi Tantangan Mini di dalam Simulasi -->
+                <div class="mt-6 bg-amber-50 border-2 border-amber-300 rounded-2xl p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <span class="bg-amber-400 text-slate-900 text-xs font-extrabold px-2.5 py-0.5 rounded-full">🎯 Misi Eksplorasi Lab</span>
+                        <h4 id="simMissionText" class="font-extrabold text-slate-800 text-base sm:text-lg">
+                            Misi 1: Atur Persegi Panjang hingga memiliki keliling tepat 30 cm!
+                        </h4>
+                        <p id="simMissionHint" class="text-xs text-slate-600 font-semibold">Petunjuk: Pilih Persegi Panjang, lalu geser panjang dan lebar hingga 2 × (p + l) = 30.</p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span id="simMissionStatus" class="text-sm font-extrabold text-amber-700 bg-white px-4 py-2 rounded-xl border border-amber-200">
+                            Belum Tercapai ⏳
+                        </span>
+                        <button onclick="nextSimMission()" class="btn-game bg-sky-500 hover:bg-sky-600 text-white text-xs font-extrabold px-3.5 py-2.5 rounded-xl">
+                            Misi Lain 🔄
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 4. MENU PERMAINAN (4 WAHANA INTERAKTIF)                   -->
+        <!-- ========================================================= -->
+        <section id="tab-permainan" class="tab-content hidden animate-pop space-y-6">
+            <!-- Sub-Navigasi 4 Permainan -->
+            <div class="bg-white rounded-3xl p-4 sm:p-5 shadow-md border-b-4 border-rose-300">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-2xl font-bold text-slate-800">🎮 Wahana Permainan Geometri</h2>
+                        <p class="text-xs sm:text-sm text-slate-600 font-semibold">Pilih wahana permainan, tentukan level kesulitan, dan kumpulkan poin sebanyaknya!</p>
+                    </div>
+                    <!-- Pemilih Level Kesulitan Permainan -->
+                    <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-2xl">
+                        <span class="text-xs font-extrabold text-slate-500 px-2">Level:</span>
+                        <button onclick="setGameDifficulty('mudah')" data-diff="mudah" class="diff-btn px-3 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500 text-white shadow-sm">🌱 Mudah</button>
+                        <button onclick="setGameDifficulty('sedang')" data-diff="sedang" class="diff-btn px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-700 hover:bg-white">🌿 Sedang</button>
+                        <button onclick="setGameDifficulty('menantang')" data-diff="menantang" class="diff-btn px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-700 hover:bg-white">🔥 Menantang</button>
+                    </div>
+                </div>
+
+                <!-- Pilihan 4 Game -->
+                <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
+                    <button onclick="switchGame('openbox')" data-game="openbox" class="game-tab-btn btn-game p-3 rounded-2xl text-left bg-amber-400 text-slate-900 border-2 border-amber-500">
+                        <div class="text-2xl mb-1">🎁</div>
+                        <div class="font-extrabold text-sm">1. Open the Box</div>
+                        <div class="text-xs opacity-80 font-bold">Buka 6 Peti Misteri</div>
+                    </button>
+                    <button onclick="switchGame('dragdrop')" data-game="dragdrop" class="game-tab-btn btn-game p-3 rounded-2xl text-left bg-slate-50 text-slate-700 border-2 border-slate-200 hover:bg-sky-50">
+                        <div class="text-2xl mb-1">🧩</div>
+                        <div class="font-extrabold text-sm">2. Drag & Drop</div>
+                        <div class="text-xs opacity-80 font-bold">Pasangkan Bangun & Nilai</div>
+                    </button>
+                    <button onclick="switchGame('fillblank')" data-game="fillblank" class="game-tab-btn btn-game p-3 rounded-2xl text-left bg-slate-50 text-slate-700 border-2 border-slate-200 hover:bg-emerald-50">
+                        <div class="text-2xl mb-1">✏️</div>
+                        <div class="font-extrabold text-sm">3. Fill in the Blank</div>
+                        <div class="text-xs opacity-80 font-bold">Isi Angka yang Hilang</div>
+                    </button>
+                    <button onclick="switchGame('matching')" data-game="matching" class="game-tab-btn btn-game p-3 rounded-2xl text-left bg-slate-50 text-slate-700 border-2 border-slate-200 hover:bg-purple-50">
+                        <div class="text-2xl mb-1">🔗</div>
+                        <div class="font-extrabold text-sm">4. Menjodohkan</div>
+                        <div class="text-xs opacity-80 font-bold">Hubungkan 5 Pasangan</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- KONTEN GAME 1: OPEN THE BOX -->
+            <div id="game-openbox" class="game-panel bg-white rounded-3xl p-6 shadow-md border-b-4 border-amber-300 space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-xl font-bold text-amber-800">🎁 Open the Box: Peti Misteri Keliling</h3>
+                        <p class="text-sm text-slate-600">Klik salah satu peti harta karun di bawah ini untuk membuka tantangan soal!</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="openBoxScoreBadge" class="bg-amber-100 text-amber-900 px-3 py-1.5 rounded-xl text-sm font-extrabold">Skor Game: 0 / 60</span>
+                        <button onclick="initOpenBoxGame()" class="btn-game bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-extrabold px-3.5 py-2 rounded-xl">🔄 Reset Kotak</button>
+                    </div>
+                </div>
+
+                <!-- Grid 6 Kotak Misteri -->
+                <div id="openBoxGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    <!-- Dirender via JS -->
+                </div>
+
+                <!-- Area Soal Ketika Kotak Dibuka -->
+                <div id="openBoxQuestionModal" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl p-5 animate-pop">
+                    <!-- Konten soal kotak -->
+                </div>
+            </div>
+
+            <!-- KONTEN GAME 2: DRAG AND DROP (DENGAN ALTERNATIF KLIK) -->
+            <div id="game-dragdrop" class="game-panel hidden bg-white rounded-3xl p-6 shadow-md border-b-4 border-sky-300 space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-xl font-bold text-sky-800">🧩 Drag & Drop: Pasangkan Bangun Datar ke Kelilingnya</h3>
+                        <p class="text-sm text-slate-600">
+                            <strong>Cara Bermain:</strong> Seret kartu bangun datar ke kotak jawaban yang tepat, <em>atau</em> <strong>klik kartu lalu klik kotak tujuannya</strong>!
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="dragDropScoreBadge" class="bg-sky-100 text-sky-900 px-3 py-1.5 rounded-xl text-sm font-extrabold">Skor Game: 0 / 50</span>
+                        <button onclick="initDragDropGame()" class="btn-game bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-extrabold px-3.5 py-2 rounded-xl">🔄 Acak Ulang</button>
+                    </div>
+                </div>
+
+                <!-- Kartu Item yang Bisa Ditarik / Diklik -->
+                <div class="bg-sky-50/70 p-4 rounded-2xl border border-sky-200">
+                    <p class="text-xs font-extrabold text-sky-700 uppercase mb-3">1. Pilih atau Seret Kartu Bangun Datar:</p>
+                    <div id="dragItemsContainer" class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                        <!-- Dirender via JS -->
+                    </div>
+                </div>
+
+                <!-- Zona Target -->
+                <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200">
+                    <p class="text-xs font-extrabold text-emerald-700 uppercase mb-3">2. Letakkan ke Kotak Keliling yang Sesuai:</p>
+                    <div id="dropZonesContainer" class="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                        <!-- Dirender via JS -->
+                    </div>
+                </div>
+
+                <!-- Feedback Area Drag & Drop -->
+                <div id="dragDropFeedback" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+            </div>
+
+            <!-- KONTEN GAME 3: FILL IN THE BLANK -->
+            <div id="game-fillblank" class="game-panel hidden bg-white rounded-3xl p-6 shadow-md border-b-4 border-emerald-300 space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-xl font-bold text-emerald-800">✏️ Fill in the Blank: Lengkapi Angka yang Hilang</h3>
+                        <p class="text-sm text-slate-600">Hitung dengan teliti, ketik angka jawabannya pada kotak kosong, lalu klik tombol <strong>Cek Jawaban</strong>!</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="fillBlankScoreBadge" class="bg-emerald-100 text-emerald-900 px-3 py-1.5 rounded-xl text-sm font-extrabold">Skor Game: 0 / 50</span>
+                        <button onclick="initFillBlankGame()" class="btn-game bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-extrabold px-3.5 py-2 rounded-xl">🔄 Soal Baru</button>
+                    </div>
+                </div>
+
+                <div id="fillBlankContainer" class="space-y-4">
+                    <!-- 5 Soal Fill in the Blank dirender via JS -->
+                </div>
+            </div>
+
+            <!-- KONTEN GAME 4: MENJODOHKAN (MATCHING PAIRS) -->
+            <div id="game-matching" class="game-panel hidden bg-white rounded-3xl p-6 shadow-md border-b-4 border-purple-300 space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                        <h3 class="text-xl font-bold text-purple-800">🔗 Menjodohkan: Hubungkan Pasangan Geometri</h3>
+                        <p class="text-sm text-slate-600">Klik satu kartu di <strong>Kolom Kiri</strong>, lalu klik pasangannya yang tepat di <strong>Kolom Kanan</strong>!</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span id="matchingScoreBadge" class="bg-purple-100 text-purple-900 px-3 py-1.5 rounded-xl text-sm font-extrabold">Skor Game: 0 / 50</span>
+                        <button onclick="initMatchingGame()" class="btn-game bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-extrabold px-3.5 py-2 rounded-xl">🔄 Ulangi</button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 relative" id="matchingBoard">
+                    <!-- Kolom Kiri -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-extrabold uppercase text-purple-700 tracking-wider">📌 Kolom Bangun & Soal</h4>
+                        <div id="matchLeftCol" class="space-y-2.5"></div>
+                    </div>
+                    <!-- Kolom Kanan -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-extrabold uppercase text-indigo-700 tracking-wider">🎯 Kolom Rumus & Jawaban</h4>
+                        <div id="matchRightCol" class="space-y-2.5"></div>
+                    </div>
+                </div>
+
+                <div id="matchingFeedback" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 5. MENU KUIS (PILIHAN GANDA, BENAR/SALAH, TANTANGAN CEPAT)-->
+        <!-- ========================================================= -->
+        <section id="tab-kuis" class="tab-content hidden animate-pop space-y-6">
+            <!-- Header Pemilih Mode Kuis -->
+            <div class="bg-white rounded-3xl p-5 shadow-md border-b-4 border-purple-300">
+                <h2 class="text-2xl font-bold text-slate-800 mb-1">📝 Arena Kuis & Evaluasi</h2>
+                <p class="text-sm text-slate-600 font-semibold mb-4">Uji pemahamanmu melalui 3 jenis tantangan evaluasi di bawah ini!</p>
+
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <button onclick="switchQuizMode('pg')" data-qmode="pg" class="quiz-mode-btn btn-game p-3.5 rounded-2xl text-left bg-purple-600 text-white">
+                        <div class="font-extrabold text-base">1. 🎯 Pilihan Ganda</div>
+                        <div class="text-xs opacity-90">6 Soal Berjenjang (Mudah → Menantang)</div>
+                    </button>
+                    <button onclick="switchQuizMode('tf')" data-qmode="tf" class="quiz-mode-btn btn-game p-3.5 rounded-2xl text-left bg-slate-100 text-slate-800 hover:bg-emerald-50">
+                        <div class="font-extrabold text-base">2. ⚖️ Benar atau Salah</div>
+                        <div class="text-xs opacity-80">6 Pernyataan Analisis Konsep</div>
+                    </button>
+                    <button onclick="switchQuizMode('speed')" data-qmode="speed" class="quiz-mode-btn btn-game p-3.5 rounded-2xl text-left bg-slate-100 text-slate-800 hover:bg-amber-50">
+                        <div class="font-extrabold text-base">3. ⚡ Tantangan Cepat</div>
+                        <div class="text-xs opacity-80">Kejar Waktu 60 Detik + Combo!</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- MODE KUIS 1: PILIHAN GANDA -->
+            <div id="quiz-pg" class="quiz-panel bg-white rounded-3xl p-6 shadow-md border-b-4 border-purple-300">
+                <div id="pgContainer">
+                    <!-- Dirender oleh JS -->
+                </div>
+            </div>
+
+            <!-- MODE KUIS 2: BENAR / SALAH -->
+            <div id="quiz-tf" class="quiz-panel hidden bg-white rounded-3xl p-6 shadow-md border-b-4 border-emerald-300">
+                <div id="tfContainer">
+                    <!-- Dirender oleh JS -->
+                </div>
+            </div>
+
+            <!-- MODE KUIS 3: TANTANGAN CEPAT (SPEED CHALLENGE) -->
+            <div id="quiz-speed" class="quiz-panel hidden bg-white rounded-3xl p-6 shadow-md border-b-4 border-amber-400">
+                <div id="speedContainer">
+                    <!-- Dirender oleh JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ========================================================= -->
+        <!-- 6. MENU HASIL & RAPOR BELAJAR                             -->
+        <!-- ========================================================= -->
+        <section id="tab-hasil" class="tab-content hidden animate-pop space-y-6">
+            <!-- Kartu Utama Rapor Siswa -->
+            <div class="bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 rounded-3xl p-6 sm:p-8 text-white shadow-xl border-4 border-white">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="space-y-2 text-center md:text-left">
+                        <span class="bg-white/20 px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider">🏆 Rapor Petualangan Belajar</span>
+                        <h2 class="text-3xl sm:text-4xl font-bold" id="reportStudentName">Petualang Cilik</h2>
+                        <p id="reportMotivation" class="text-purple-100 text-sm sm:text-base font-semibold max-w-xl">
+                            Teruslah berlatih dan jelajahi semua permainan serta kuis untuk meraih gelar Master Geometri!
+                        </p>
+                    </div>
+                    <div class="bg-white text-slate-800 rounded-3xl p-5 text-center shadow-lg min-w-[180px]">
+                        <p class="text-xs font-extrabold uppercase text-slate-400">Total Poin Kamu</p>
+                        <p id="reportTotalScore" class="text-4xl font-display font-bold text-purple-600 my-1">0</p>
+                        <span id="reportRankBadge" class="inline-block bg-amber-100 text-amber-800 text-xs font-extrabold px-3 py-1 rounded-full">
+                            🌟 Penjelajah Pemula
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rincian Skor per Aktivitas -->
+            <div class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-sky-200">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">📊 Rincian Pencapaian Aktivitas</h3>
+                <div id="reportBreakdownGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Dirender dinamis oleh JS -->
+                </div>
+            </div>
+
+            <!-- Koleksi Badge / Lencana Penghargaan -->
+            <div class="bg-white rounded-3xl p-6 shadow-md border-b-4 border-amber-300">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-xl font-bold text-slate-800">🎖️ Koleksi Lencana Penghargaan</h3>
+                    <span id="reportBadgeSummary" class="text-xs font-extrabold bg-amber-100 text-amber-800 px-3 py-1 rounded-full">0 / 6 Terbuka</span>
+                </div>
+                <div id="badgesGrid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <!-- 6 Lencana dirender via JS -->
+                </div>
+            </div>
+
+            <!-- Refleksi Belajar Siswa & Aksi -->
+            <div class="bg-emerald-50 rounded-3xl p-6 border-2 border-emerald-200 space-y-4">
+                <h3 class="text-xl font-bold text-emerald-900">💭 Refleksi Belajar Hari Ini</h3>
+                <p class="text-sm text-emerald-800 font-semibold">Tuliskan apa hal paling seru atau rumus baru yang kamu pahami hari ini:</p>
+                <textarea id="reflectionInput" rows="2" placeholder="Contoh: Hari ini aku jadi tahu cara menghitung keliling segiempat dan segi banyak dengan mudah!"
+                    class="w-full p-3.5 rounded-2xl border-2 border-emerald-300 focus:outline-none focus:border-emerald-500 text-sm font-semibold"></textarea>
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <button onclick="saveReflection()" class="btn-game bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-5 py-2.5 rounded-xl text-sm">
+                        💾 Simpan Refleksi
+                    </button>
+                    <button onclick="confirmResetProgress()" class="btn-game bg-rose-100 hover:bg-rose-200 text-rose-700 font-extrabold px-4 py-2.5 rounded-xl text-xs">
+                        🗑️ Reset Semua Progres
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="bg-white/80 border-t border-sky-100 py-4 text-center text-xs font-bold text-slate-500 mt-8">
+        <p>🎨 Media Pembelajaran Interaktif Matematika Kelas 5 SD • Materi Keliling Bangun Datar</p>
+    </footer>
+
+    <!-- TOAST NOTIFIKASI RAMAH ANAK -->
+    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- MODAL KONFIRMASI CUSTOM (PENGGANTI ALERT/CONFIRM) -->
+    <div id="customModal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border-4 border-amber-300 animate-pop text-center space-y-4">
+            <div id="modalIcon" class="text-5xl">🤔</div>
+            <h3 id="modalTitle" class="text-xl font-bold text-slate-800">Konfirmasi</h3>
+            <p id="modalMessage" class="text-sm text-slate-600 font-semibold">Apakah kamu yakin?</p>
+            <div class="flex justify-center gap-3 pt-2">
+                <button id="modalCancelBtn" onclick="closeModal()" class="btn-game bg-slate-200 hover:bg-slate-300 text-slate-800 font-extrabold px-5 py-2.5 rounded-xl text-sm">
+                    Batal
+                </button>
+                <button id="modalConfirmBtn" class="btn-game bg-rose-500 hover:bg-rose-600 text-white font-extrabold px-5 py-2.5 rounded-xl text-sm">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================= -->
+    <!-- JAVASCRIPT LOGIKA APLIKASI, GAME, SIMULASI & AUDIO        -->
+    <!-- ========================================================= -->
+    <script>
+        /* =========================================================
+           1. SISTEM EFEK SUARA (WEB AUDIO API SYNTH)
+           ========================================================= */
+        let soundEnabled = true;
+        let audioCtx = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (AudioContext) audioCtx = new AudioContext();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                if (!audioCtx) return;
+
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'click') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(520, now);
+                    osc.frequency.exponentialRampToValueAtTime(680, now + 0.08);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+                    osc.start(now);
+                    osc.stop(now + 0.08);
+                } else if (type === 'correct') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.09); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.18); // G5
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'wrong') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(160, now + 0.25);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'open') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(350, now);
+                    osc.frequency.exponentialRampToValueAtTime(700, now + 0.22);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.22);
+                    osc.start(now);
+                    osc.stop(now + 0.22);
+                } else if (type === 'win') {
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, i) => {
+                        const o = audioCtx.createOscillator();
+                        const g = audioCtx.createGain();
+                        o.type = 'triangle';
+                        o.connect(g);
+                        g.connect(audioCtx.destination);
+                        o.frequency.setValueAtTime(freq, now + i * 0.1);
+                        g.gain.setValueAtTime(0.16, now + i * 0.1);
+                        g.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.3);
+                        o.start(now + i * 0.1);
+                        o.stop(now + i * 0.1 + 0.3);
+                    });
+                }
+            } catch (e) {
+                // Abaikan jika browser memblokir autoplay audio sebelum interaksi
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const btn = document.getElementById('btnSoundToggle');
+            btn.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) playSound('click');
+            showToast(soundEnabled ? 'Suara efek diaktifkan 🔊' : 'Suara efek dimatikan 🔇');
+        }
+
+        function triggerConfetti() {
+            const colors = ['#F59E0B', '#10B981', '#3B82F6', '#EC4899', '#8B5CF6'];
+            for (let i = 0; i < 32; i++) {
+                const piece = document.createElement('div');
+                piece.className = 'confetti-piece rounded-sm';
+                piece.style.left = Math.random() * 100 + 'vw';
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDuration = (1.6 + Math.random() * 1.4) + 's';
+                document.body.appendChild(piece);
+                setTimeout(() => piece.remove(), 3000);
+            }
+        }
+
+        function showToast(msg) {
+            const container = document.getElementById('toastContainer');
+            const el = document.createElement('div');
+            el.className = 'bg-slate-800 text-white text-xs sm:text-sm font-bold px-4 py-3 rounded-2xl shadow-lg border-2 border-sky-400 animate-pop';
+            el.textContent = msg;
+            container.appendChild(el);
+            setTimeout(() => {
+                el.style.opacity = '0';
+                el.style.transition = 'opacity 0.3s';
+                setTimeout(() => el.remove(), 300);
+            }, 2600);
+        }
+
+        /* =========================================================
+           2. STATE PENYIMPANAN PROGRES & SKOR OTOMATIS
+           ========================================================= */
+        const defaultState = {
+            studentName: 'Petualang Cilik',
+            materiDone: false,
+            simMissionsDone: 0,
+            scores: {
+                materi: 0,      // max 20
+                simulasi: 0,    // max 30
+                openbox: 0,     // max 60
+                dragdrop: 0,    // max 50
+                fillblank: 0,   // max 50
+                matching: 0,    // max 50
+                quizPG: 0,      // max 60
+                quizTF: 0,      // max 60
+                speedHigh: 0    // max 100+
+            },
+            reflection: ''
+        };
+
+        let state = JSON.parse(localStorage.getItem('tamanGeometriState')) || JSON.parse(JSON.stringify(defaultState));
+
+        function saveState() {
+            localStorage.setItem('tamanGeometriState', JSON.stringify(state));
+            updateGlobalUI();
+        }
+
+        function saveStudentName(val) {
+            const cleaned = val.trim();
+            state.studentName = cleaned || 'Petualang Cilik';
+            saveState();
+        }
+
+        function getTotalScore() {
+            const s = state.scores;
+            return s.materi + s.simulasi + s.openbox + s.dragdrop + s.fillblank + s.matching + s.quizPG + s.quizTF + s.speedHigh;
+        }
+
+        function getProgressPercent() {
+            let completed = 0;
+            const totalTasks = 9;
+            if (state.scores.materi > 0) completed++;
+            if (state.scores.simulasi > 0) completed++;
+            if (state.scores.openbox >= 30) completed++;
+            if (state.scores.dragdrop >= 30) completed++;
+            if (state.scores.fillblank >= 30) completed++;
+            if (state.scores.matching >= 30) completed++;
+            if (state.scores.quizPG >= 30) completed++;
+            if (state.scores.quizTF >= 30) completed++;
+            if (state.scores.speedHigh >= 30) completed++;
+            return Math.round((completed / totalTasks) * 100);
+        }
+
+        function getLevelTitle(score) {
+            if (score >= 320) return '👑 Master Geometri';
+            if (score >= 200) return '🚀 Ahli Bangun Datar';
+            if (score >= 90) return '🌿 Penjelajah Terampil';
+            return '🌱 Penjelajah Pemula';
+        }
+
+        function updateGlobalUI() {
+            const total = getTotalScore();
+            const pct = getProgressPercent();
+            const level = getLevelTitle(total);
+
+            document.getElementById('headerScore').textContent = total;
+            document.getElementById('headerLevelText').textContent = level;
+            document.getElementById('globalProgressBar').style.width = pct + '%';
+
+            // Beranda
+            const nameInput = document.getElementById('studentNameInput');
+            if (nameInput && state.studentName !== 'Petualang Cilik' && !nameInput.value) {
+                nameInput.value = state.studentName;
+            }
+            document.getElementById('homeGreetingName').textContent = state.studentName;
+            document.getElementById('homeProgressPercent').textContent = pct + '%';
+            document.getElementById('homeProgressBar').style.width = pct + '%';
+            document.getElementById('homeLevelText').textContent = level;
+
+            const unlockedBadges = getUnlockedBadgesCount();
+            document.getElementById('homeBadgeCount').textContent = `${unlockedBadges}/6`;
+
+            // Update Halaman Hasil jika aktif
+            renderReportPage();
+        }
+
+        /* =========================================================
+           3. NAVIGASI MENU UTAMA
+           ========================================================= */
+        function switchTab(tabId) {
+            playSound('click');
+            document.querySelectorAll('.tab-content').forEach(sec => sec.classList.add('hidden'));
+            const activeSec = document.getElementById('tab-' + tabId);
+            if (activeSec) activeSec.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabId) {
+                    btn.className = 'nav-btn btn-game px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap flex items-center gap-1.5 bg-sky-500 text-white';
+                } else {
+                    btn.className = 'nav-btn btn-game px-3.5 py-2 rounded-2xl text-xs sm:text-sm font-extrabold whitespace-nowrap flex items-center gap-1.5 bg-white text-slate-700 hover:bg-sky-50';
+                }
+            });
+
+            if (tabId === 'hasil') renderReportPage();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /* =========================================================
+           4. DATA & RENDER MENU MATERI (SVG + RUMUS)
+           ========================================================= */
+        const materiData = [
+            {
+                id: 'segitiga-samasisi',
+                cat: 'segitiga',
+                title: 'Segitiga Sama Sisi',
+                badge: 'Segitiga',
+                color: 'rose',
+                formula: 'K = 3 × s  atau  s + s + s',
+                desc: 'Memiliki 3 sisi yang sama panjang. Jika satu sisi panjangnya 7 cm, maka kelilingnya 3 × 7 = 21 cm.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <polygon points="90,18 35,112 145,112" fill="#FECDD3" stroke="#E11D48" stroke-width="3.5" stroke-linejoin="round"/>
+                        <text x="52" y="65" font-size="12" font-weight="bold" fill="#9F1239">s</text>
+                        <text x="122" y="65" font-size="12" font-weight="bold" fill="#9F1239">s</text>
+                        <text x="90" y="126" text-anchor="middle" font-size="12" font-weight="bold" fill="#9F1239">s</text>
+                      </svg>`
+            },
+            {
+                id: 'segitiga-sembarang',
+                cat: 'segitiga',
+                title: 'Segitiga Sama Kaki & Sembarang',
+                badge: 'Segitiga',
+                color: 'rose',
+                formula: 'K = sisi a + sisi b + sisi c',
+                desc: 'Jumlahkan ketiga panjang sisinya. Pada segitiga sama kaki, dua sisi miring memiliki panjang yang sama.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <polygon points="55,20 25,110 155,110" fill="#FFE4E6" stroke="#F43F5E" stroke-width="3.5" stroke-linejoin="round"/>
+                        <text x="30" y="65" font-size="12" font-weight="bold" fill="#9F1239">a</text>
+                        <text x="115" y="62" font-size="12" font-weight="bold" fill="#9F1239">b</text>
+                        <text x="90" y="126" text-anchor="middle" font-size="12" font-weight="bold" fill="#9F1239">c</text>
+                      </svg>`
+            },
+            {
+                id: 'persegi',
+                cat: 'segiempat',
+                title: 'Persegi',
+                badge: 'Segiempat',
+                color: 'sky',
+                formula: 'K = 4 × s',
+                desc: 'Memiliki 4 sisi yang sama panjang. Contoh: s = 6 cm, maka K = 4 × 6 = 24 cm.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <rect x="48" y="20" width="84" height="84" rx="4" fill="#BAE6FD" stroke="#0284C7" stroke-width="3.5"/>
+                        <text x="90" y="15" text-anchor="middle" font-size="12" font-weight="bold" fill="#0369A1">s</text>
+                        <text x="142" y="66" font-size="12" font-weight="bold" fill="#0369A1">s</text>
+                        <text x="90" y="120" text-anchor="middle" font-size="12" font-weight="bold" fill="#0369A1">s</text>
+                        <text x="36" y="66" font-size="12" font-weight="bold" fill="#0369A1">s</text>
+                      </svg>`
+            },
+            {
+                id: 'persegipanjang',
+                cat: 'segiempat',
+                title: 'Persegi Panjang',
+                badge: 'Segiempat',
+                color: 'sky',
+                formula: 'K = 2 × (p + l)',
+                desc: 'Memiliki 2 sisi panjang (p) dan 2 sisi lebar (l) yang berhadapan sama panjang.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <rect x="25" y="30" width="130" height="70" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="3.5"/>
+                        <text x="90" y="23" text-anchor="middle" font-size="12" font-weight="bold" fill="#1D4ED8">p (panjang)</text>
+                        <text x="165" y="68" font-size="12" font-weight="bold" fill="#1D4ED8">l</text>
+                        <text x="90" y="116" text-anchor="middle" font-size="12" font-weight="bold" fill="#1D4ED8">p</text>
+                        <text x="14" y="68" font-size="12" font-weight="bold" fill="#1D4ED8">l</text>
+                      </svg>`
+            },
+            {
+                id: 'jajargenjang-belahketupat',
+                cat: 'segiempat',
+                title: 'Jajar Genjang & Belah Ketupat',
+                badge: 'Segiempat',
+                color: 'indigo',
+                formula: 'Jajar Genjang: 2×(a+b) | Belah Ketupat: 4×s',
+                desc: 'Belah ketupat memiliki 4 sisi sama panjang seperti persegi. Jajar genjang punya 2 pasang sisi sejajar sama panjang.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <polygon points="45,30 155,30 135,100 25,100" fill="#E0E7FF" stroke="#4F46E5" stroke-width="3.5" stroke-linejoin="round"/>
+                        <text x="100" y="23" text-anchor="middle" font-size="12" font-weight="bold" fill="#3730A3">a</text>
+                        <text x="153" y="68" font-size="12" font-weight="bold" fill="#3730A3">b</text>
+                        <text x="80" y="116" text-anchor="middle" font-size="12" font-weight="bold" fill="#3730A3">a</text>
+                      </svg>`
+            },
+            {
+                id: 'trapesium-layang',
+                cat: 'segiempat',
+                title: 'Trapesium & Layang-Layang',
+                badge: 'Segiempat',
+                color: 'indigo',
+                formula: 'K = sisi 1 + sisi 2 + sisi 3 + sisi 4',
+                desc: 'Jumlahkan seluruh 4 sisi luarnya. Pada layang-layang ada 2 pasang sisi berdekatan yang sama panjang.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <polygon points="55,28 125,28 155,102 25,102" fill="#EDE9FE" stroke="#7C3AED" stroke-width="3.5" stroke-linejoin="round"/>
+                        <text x="90" y="21" text-anchor="middle" font-size="11" font-weight="bold" fill="#5B21B6">a</text>
+                        <text x="148" y="66" font-size="11" font-weight="bold" fill="#5B21B6">b</text>
+                        <text x="90" y="118" text-anchor="middle" font-size="11" font-weight="bold" fill="#5B21B6">c</text>
+                        <text x="30" y="66" font-size="11" font-weight="bold" fill="#5B21B6">d</text>
+                      </svg>`
+            },
+            {
+                id: 'segilima',
+                cat: 'segibanyak',
+                title: 'Segi Lima Beraturan (Pentagon)',
+                badge: 'Segi Banyak',
+                color: 'emerald',
+                formula: 'K = 5 × s',
+                desc: 'Memiliki 5 sisi yang sama panjang. Contoh: s = 8 cm, maka K = 5 × 8 = 40 cm.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <polygon points="90,15 145,55 124,115 56,115 35,55" fill="#D1FAE5" stroke="#059669" stroke-width="3.5" stroke-linejoin="round"/>
+                        <text x="90" y="72" text-anchor="middle" font-size="12" font-weight="bold" fill="#065F46">5 sisi = s</text>
+                      </svg>`
+            },
+            {
+                id: 'segienam',
+                cat: 'segibanyak',
+                title: 'Segi Enam Beraturan (Heksagon)',
+                badge: 'Segi Banyak',
+                color: 'emerald',
+                formula: 'K = 6 × s',
+                desc: 'Memiliki 6 sisi yang sama panjang (seperti sarang lebah). Contoh: s = 5 cm, maka K = 6 × 5 = 30 cm.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <polygon points="60,20 120,20 150,65 120,110 60,110 30,65" fill="#A7F3D0" stroke="#047857" stroke-width="3.5" stroke-linejoin="round"/>
+                        <text x="90" y="70" text-anchor="middle" font-size="12" font-weight="bold" fill="#064E3B">6 sisi = s</text>
+                      </svg>`
+            },
+            {
+                id: 'segibanyak-takberaturan',
+                cat: 'segibanyak',
+                title: 'Segi Banyak Tidak Beraturan',
+                badge: 'Segi Banyak',
+                color: 'amber',
+                formula: 'K = Jumlah semua panjang sisinya',
+                desc: 'Jika panjang sisinya berbeda-beda (misal bangun huruf L atau tanda panah), jumlahkan satu per satu semua sisi tepinya.',
+                svg: `<svg viewBox="0 0 180 130" class="w-40 h-28 mx-auto">
+                        <polygon points="45,20 95,20 95,65 145,65 145,110 45,110" fill="#FEF3C7" stroke="#D97706" stroke-width="3.5" stroke-linejoin="round"/>
+                        <text x="70" y="15" text-anchor="middle" font-size="10" font-weight="bold" fill="#92400E">s1</text>
+                        <text x="105" y="45" font-size="10" font-weight="bold" fill="#92400E">s2</text>
+                        <text x="122" y="59" font-size="10" font-weight="bold" fill="#92400E">s3</text>
+                        <text x="155" y="90" font-size="10" font-weight="bold" fill="#92400E">s4</text>
+                        <text x="95" y="124" text-anchor="middle" font-size="10" font-weight="bold" fill="#92400E">s5</text>
+                        <text x="33" y="68" font-size="10" font-weight="bold" fill="#92400E">s6</text>
+                      </svg>`
+            }
+        ];
+
+        function renderMateriCards(filter = 'semua') {
+            const container = document.getElementById('materiCardsContainer');
+            const filtered = filter === 'semua' ? materiData : materiData.filter(m => m.cat === filter);
+
+            container.innerHTML = filtered.map(item => `
+                <div class="bg-white rounded-3xl p-5 shadow-md border-b-4 border-${item.color}-300 flex flex-col justify-between hover:shadow-lg transition">
+                    <div>
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="bg-${item.color}-100 text-${item.color}-800 text-xs font-extrabold px-3 py-1 rounded-full">${item.badge}</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-800 mb-2">${item.title}</h3>
+                        <div class="bg-slate-50 rounded-2xl p-2 mb-3 border border-slate-100">
+                            ${item.svg}
+                        </div>
+                        <div class="bg-${item.color}-50 border border-${item.color}-200 rounded-xl px-3 py-2 text-center mb-2">
+                            <span class="text-xs font-extrabold text-${item.color}-900">${item.formula}</span>
+                        </div>
+                        <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">${item.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterMateri(cat) {
+            playSound('click');
+            document.querySelectorAll('.materi-filter-btn').forEach(btn => {
+                if (btn.dataset.cat === cat) {
+                    btn.className = 'materi-filter-btn btn-game px-4 py-2 rounded-xl text-sm font-extrabold bg-emerald-500 text-white';
+                } else {
+                    btn.className = 'materi-filter-btn btn-game px-4 py-2 rounded-xl text-sm font-extrabold bg-white text-slate-700';
+                }
+            });
+            renderMateriCards(cat);
+        }
+
+        function markMateriCompleted() {
+            if (state.scores.materi === 0) {
+                state.scores.materi = 20;
+                saveState();
+                playSound('win');
+                triggerConfetti();
+                showToast('Hebat! Kamu mendapatkan +20 Poin dari belajar materi! 🎉');
+            } else {
+                playSound('correct');
+                showToast('Materi sudah kamu kuasai! Ayo lanjut ke Lab Simulasi 🔬');
+            }
+        }
+
+        /* =========================================================
+           5. LAB SIMULASI INTERAKTIF (SEBAB-AKIBAT)
+           ========================================================= */
+        let simState = {
+            shape: 'persegi',
+            s: 6,
+            p: 9,
+            l: 5,
+            a: 6,
+            b: 8,
+            c: 10,
+            n: 5, // jumlah sisi segi banyak
+            missionIdx: 0
+        };
+
+        const simMissions = [
+            {
+                text: 'Misi 1: Buat Persegi Panjang dengan keliling tepat 30 cm!',
+                hint: 'Pilih Persegi Panjang, atur panjang (p) dan lebar (l) agar 2 × (p + l) = 30.',
+                check: (st, kel) => st.shape === 'persegipanjang' && kel === 30
+            },
+            {
+                text: 'Misi 2: Buat Persegi dengan keliling tepat 36 cm!',
+                hint: 'Pilih Persegi, lalu geser panjang sisi (s) hingga kelilingnya 36 cm.',
+                check: (st, kel) => st.shape === 'persegi' && kel === 36
+            },
+            {
+                text: 'Misi 3: Buat Segi Enam Beraturan (6 sisi) dengan keliling 42 cm!',
+                hint: 'Pilih Segi Banyak, atur jumlah sisi = 6 dan panjang sisi = 7 cm.',
+                check: (st, kel) => st.shape === 'segibanyak' && st.n === 6 && kel === 42
+            },
+            {
+                text: 'Misi 4: Buat Segitiga Sama Sisi dengan keliling 27 cm!',
+                hint: 'Pilih Segitiga Sama Sisi, lalu atur panjang sisinya agar 3 × s = 27.',
+                check: (st, kel) => st.shape === 'segitigasamasisi' && kel === 27
+            }
+        ];
+
+        function setSimShape(shape) {
+            playSound('click');
+            simState.shape = shape;
+            document.querySelectorAll('.sim-shape-btn').forEach(btn => {
+                if (btn.dataset.sim === shape) {
+                    btn.className = 'sim-shape-btn btn-game py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-sky-500 text-white';
+                } else {
+                    btn.className = 'sim-shape-btn btn-game py-2.5 px-3 rounded-xl text-xs sm:text-sm font-extrabold bg-slate-100 text-slate-700';
+                }
+            });
+            renderSimControls();
+            updateSimVisual();
+        }
+
+        function renderSimControls() {
+            const box = document.getElementById('simControlsBox');
+            const sh = simState.shape;
+
+            if (sh === 'persegi') {
+                box.innerHTML = `
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Panjang Sisi (s):</span>
+                            <span class="text-sky-600">${simState.s} cm</span>
+                        </div>
+                        <input type="range" min="2" max="15" value="${simState.s}" oninput="simState.s = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-sky-500 cursor-pointer">
+                    </div>`;
+            } else if (sh === 'persegipanjang') {
+                box.innerHTML = `
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Panjang (p):</span>
+                            <span class="text-sky-600">${simState.p} cm</span>
+                        </div>
+                        <input type="range" min="3" max="16" value="${simState.p}" oninput="simState.p = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-sky-500 cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Lebar (l):</span>
+                            <span class="text-emerald-600">${simState.l} cm</span>
+                        </div>
+                        <input type="range" min="2" max="12" value="${simState.l}" oninput="simState.l = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-emerald-500 cursor-pointer">
+                    </div>`;
+            } else if (sh === 'segitigasamasisi') {
+                box.innerHTML = `
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Panjang Ketiga Sisi (s):</span>
+                            <span class="text-rose-600">${simState.s} cm</span>
+                        </div>
+                        <input type="range" min="3" max="15" value="${simState.s}" oninput="simState.s = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-rose-500 cursor-pointer">
+                    </div>`;
+            } else if (sh === 'segitigasembarang') {
+                box.innerHTML = `
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Sisi Tegak (a):</span>
+                            <span class="text-rose-600">${simState.a} cm</span>
+                        </div>
+                        <input type="range" min="3" max="12" value="${simState.a}" oninput="simState.a = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-rose-500 cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Sisi Alas (b):</span>
+                            <span class="text-amber-600">${simState.b} cm</span>
+                        </div>
+                        <input type="range" min="4" max="14" value="${simState.b}" oninput="simState.b = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-amber-500 cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Sisi Miring (c):</span>
+                            <span class="text-purple-600">${simState.c} cm</span>
+                        </div>
+                        <input type="range" min="5" max="18" value="${simState.c}" oninput="simState.c = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-purple-500 cursor-pointer">
+                    </div>`;
+            } else if (sh === 'segibanyak') {
+                box.innerHTML = `
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Jumlah Sisi (n):</span>
+                            <span class="text-purple-600">${simState.n} sisi (Segi-${simState.n})</span>
+                        </div>
+                        <input type="range" min="5" max="8" value="${simState.n}" oninput="simState.n = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-purple-500 cursor-pointer">
+                    </div>
+                    <div>
+                        <div class="flex justify-between font-extrabold text-sm text-slate-700 mb-1">
+                            <span>Panjang Setiap Sisi (s):</span>
+                            <span class="text-emerald-600">${simState.s} cm</span>
+                        </div>
+                        <input type="range" min="2" max="12" value="${simState.s}" oninput="simState.s = +this.value; renderSimControls(); updateSimVisual();" class="w-full accent-emerald-500 cursor-pointer">
+                    </div>`;
+            }
+        }
+
+        function updateSimVisual() {
+            const svg = document.getElementById('simSvgCanvas');
+            const sh = simState.shape;
+            let formula = '', step = '', keliling = 0, obs = '', svgInner = '';
+
+            if (sh === 'persegi') {
+                const size = 60 + simState.s * 9;
+                const x = 180 - size / 2;
+                const y = 135 - size / 2;
+                keliling = 4 * simState.s;
+                formula = 'Rumus Persegi: K = 4 × s';
+                step = `K = 4 × ${simState.s} cm`;
+                obs = `Setiap sisi bertambah 1 cm → keliling bertambah 4 cm!`;
+                svgInner = `
+                    <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="8" fill="#BAE6FD" stroke="#0284C7" stroke-width="4"/>
+                    <rect x="${x}" y="${y}" width="${size}" height="${size}" rx="8" fill="none" stroke="#F59E0B" stroke-width="4" class="perimeter-walk"/>
+                    <text x="180" y="${y - 8}" text-anchor="middle" font-size="13" font-weight="800" fill="#0369A1">${simState.s} cm</text>
+                    <text x="${x + size + 10}" y="140" font-size="13" font-weight="800" fill="#0369A1">${simState.s} cm</text>
+                    <text x="180" y="${y + size + 18}" text-anchor="middle" font-size="13" font-weight="800" fill="#0369A1">${simState.s} cm</text>
+                    <text x="${x - 10}" y="140" text-anchor="end" font-size="13" font-weight="800" fill="#0369A1">${simState.s} cm</text>
+                `;
+            } else if (sh === 'persegipanjang') {
+                const w = 80 + simState.p * 11;
+                const h = 50 + simState.l * 9;
+                const x = 180 - w / 2;
+                const y = 135 - h / 2;
+                keliling = 2 * (simState.p + simState.l);
+                formula = 'Rumus Persegi Panjang: K = 2 × (p + l)';
+                step = `K = 2 × (${simState.p} + ${simState.l}) = 2 × ${simState.p + simState.l}`;
+                obs = `Menambah panjang (p) 1 cm membuat keliling naik 2 cm karena ada 2 sisi panjang!`;
+                svgInner = `
+                    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="#DBEAFE" stroke="#2563EB" stroke-width="4"/>
+                    <rect x="${x}" y="${y}" width="${w}" height="${h}" rx="8" fill="none" stroke="#F59E0B" stroke-width="4" class="perimeter-walk"/>
+                    <text x="180" y="${y - 8}" text-anchor="middle" font-size="13" font-weight="800" fill="#1D4ED8">p = ${simState.p} cm</text>
+                    <text x="${x + w + 10}" y="140" font-size="13" font-weight="800" fill="#059669">l = ${simState.l} cm</text>
+                    <text x="180" y="${y + h + 18}" text-anchor="middle" font-size="13" font-weight="800" fill="#1D4ED8">p = ${simState.p} cm</text>
+                `;
+            } else if (sh === 'segitigasamasisi') {
+                const side = 70 + simState.s * 9;
+                const h = side * 0.866;
+                const p1 = `180,${135 - h / 2}`;
+                const p2 = `${180 - side / 2},${135 + h / 2}`;
+                const p3 = `${180 + side / 2},${135 + h / 2}`;
+                keliling = 3 * simState.s;
+                formula = 'Rumus Segitiga Sama Sisi: K = 3 × s';
+                step = `K = 3 × ${simState.s} cm`;
+                obs = `Ketiga sisi segitiga sama panjang, sehingga kelilingnya selalu kelipatan 3!`;
+                svgInner = `
+                    <polygon points="${p1} ${p2} ${p3}" fill="#FECDD3" stroke="#E11D48" stroke-width="4" stroke-linejoin="round"/>
+                    <polygon points="${p1} ${p2} ${p3}" fill="none" stroke="#F59E0B" stroke-width="4" class="perimeter-walk"/>
+                    <text x="${180 - side / 3 - 10}" y="135" text-anchor="end" font-size="13" font-weight="800" fill="#9F1239">${simState.s} cm</text>
+                    <text x="${180 + side / 3 + 10}" y="135" font-size="13" font-weight="800" fill="#9F1239">${simState.s} cm</text>
+                    <text x="180" y="${135 + h / 2 + 18}" text-anchor="middle" font-size="13" font-weight="800" fill="#9F1239">${simState.s} cm</text>
+                `;
+            } else if (sh === 'segitigasembarang') {
+                const h = 50 + simState.a * 9;
+                const w = 60 + simState.b * 10;
+                const x0 = 180 - w / 2;
+                const y0 = 135 + h / 2;
+                const p1 = `${x0},${y0 - h}`;
+                const p2 = `${x0},${y0}`;
+                const p3 = `${x0 + w},${y0}`;
+                keliling = simState.a + simState.b + simState.c;
+                formula = 'Rumus Segitiga: K = a + b + c';
+                step = `K = ${simState.a} + ${simState.b} + ${simState.c}`;
+                obs = `Karena panjang sisinya berbeda, kita menjumlahkan ketiga sisi luarnya satu per satu.`;
+                svgInner = `
+                    <polygon points="${p1} ${p2} ${p3}" fill="#FFE4E6" stroke="#F43F5E" stroke-width="4" stroke-linejoin="round"/>
+                    <polygon points="${p1} ${p2} ${p3}" fill="none" stroke="#F59E0B" stroke-width="4" class="perimeter-walk"/>
+                    <text x="${x0 - 10}" y="${y0 - h / 2}" text-anchor="end" font-size="13" font-weight="800" fill="#E11D48">a=${simState.a}cm</text>
+                    <text x="${x0 + w / 2}" y="${y0 + 18}" text-anchor="middle" font-size="13" font-weight="800" fill="#D97706">b=${simState.b}cm</text>
+                    <text x="${x0 + w / 2 + 12}" y="${y0 - h / 2 - 5}" font-size="13" font-weight="800" fill="#7C3AED">c=${simState.c}cm</text>
+                `;
+            } else if (sh === 'segibanyak') {
+                const r = 48 + simState.s * 5;
+                const cx = 180, cy = 135;
+                let pts = [];
+                for (let i = 0; i < simState.n; i++) {
+                    const angle = (i * 2 * Math.PI / simState.n) - Math.PI / 2;
+                    pts.push(`${(cx + r * Math.cos(angle)).toFixed(1)},${(cy + r * Math.sin(angle)).toFixed(1)}`);
+                }
+                keliling = simState.n * simState.s;
+                formula = `Rumus Segi-${simState.n} Beraturan: K = ${simState.n} × s`;
+                step = `K = ${simState.n} × ${simState.s} cm`;
+                obs = `Segi-${simState.n} beraturan punya ${simState.n} sisi sama panjang, jadi cukup dikali ${simState.n}!`;
+                svgInner = `
+                    <polygon points="${pts.join(' ')}" fill="#D1FAE5" stroke="#059669" stroke-width="4" stroke-linejoin="round"/>
+                    <polygon points="${pts.join(' ')}" fill="none" stroke="#F59E0B" stroke-width="4" class="perimeter-walk"/>
+                    <text x="180" y="132" text-anchor="middle" font-size="13" font-weight="800" fill="#065F46">${simState.n} Sisi</text>
+                    <text x="180" y="149" text-anchor="middle" font-size="12" font-weight="700" fill="#047857">@ ${simState.s} cm</text>
+                `;
+            }
+
+            svg.innerHTML = svgInner;
+            document.getElementById('simFormulaDisplay').textContent = formula;
+            document.getElementById('simStepDisplay').textContent = step;
+            document.getElementById('simResultDisplay').textContent = keliling + ' cm';
+            document.getElementById('simObservationText').textContent = obs;
+
+            // Cek Misi Simulasi
+            const currentMission = simMissions[simState.missionIdx];
+            const statusEl = document.getElementById('simMissionStatus');
+            if (currentMission.check(simState, keliling)) {
+                if (!statusEl.dataset.done) {
+                    statusEl.dataset.done = 'true';
+                    statusEl.textContent = 'Tercapai! 🎉 (+10 Poin)';
+                    statusEl.className = 'text-sm font-extrabold text-emerald-700 bg-emerald-100 px-4 py-2 rounded-xl border border-emerald-300';
+                    playSound('win');
+                    triggerConfetti();
+                    if (state.scores.simulasi < 30) {
+                        state.scores.simulasi = Math.min(30, state.scores.simulasi + 10);
+                        saveState();
+                    }
+                }
+            }
+        }
+
+        function nextSimMission() {
+            playSound('click');
+            simState.missionIdx = (simState.missionIdx + 1) % simMissions.length;
+            const m = simMissions[simState.missionIdx];
+            document.getElementById('simMissionText').textContent = m.text;
+            document.getElementById('simMissionHint').textContent = 'Petunjuk: ' + m.hint;
+            const statusEl = document.getElementById('simMissionStatus');
+            delete statusEl.dataset.done;
+            statusEl.textContent = 'Belum Tercapai ⏳';
+            statusEl.className = 'text-sm font-extrabold text-amber-700 bg-white px-4 py-2 rounded-xl border border-amber-200';
+            updateSimVisual();
+        }
+
+        /* =========================================================
+           6. BANK SOAL & GENERATOR PERMAINAN (4 WAHANA)
+           ========================================================= */
+        let currentDifficulty = 'mudah';
+
+        function setGameDifficulty(diff) {
+            playSound('click');
+            currentDifficulty = diff;
+            document.querySelectorAll('.diff-btn').forEach(btn => {
+                if (btn.dataset.diff === diff) {
+                    const bg = diff === 'mudah' ? 'bg-emerald-500' : (diff === 'sedang' ? 'bg-amber-500' : 'bg-rose-500');
+                    btn.className = `diff-btn px-3 py-1.5 rounded-xl text-xs font-extrabold ${bg} text-white shadow-sm`;
+                } else {
+                    btn.className = 'diff-btn px-3 py-1.5 rounded-xl text-xs font-extrabold text-slate-700 hover:bg-white';
+                }
+            });
+            // Reinisialisasi semua game sesuai level baru
+            initOpenBoxGame();
+            initDragDropGame();
+            initFillBlankGame();
+            initMatchingGame();
+            showToast(`Level permainan diubah ke: ${diff.toUpperCase()} 🎯`);
+        }
+
+        function switchGame(gameId) {
+            playSound('click');
+            document.querySelectorAll('.game-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById('game-' + gameId).classList.remove('hidden');
+
+            document.querySelectorAll('.game-tab-btn').forEach(btn => {
+                if (btn.dataset.game === gameId) {
+                    btn.className = 'game-tab-btn btn-game p-3 rounded-2xl text-left bg-amber-400 text-slate-900 border-2 border-amber-500';
+                } else {
+                    btn.className = 'game-tab-btn btn-game p-3 rounded-2xl text-left bg-slate-50 text-slate-700 border-2 border-slate-200 hover:bg-sky-50';
+                }
+            });
+        }
+
+        // Helper SVG mini untuk soal-soal
+        function miniShapeSvg(type, labels) {
+            if (type === 'persegi') {
+                return `<svg width="110" height="85" viewBox="0 0 110 85" class="mx-auto">
+                    <rect x="30" y="15" width="50" height="50" rx="4" fill="#BAE6FD" stroke="#0284C7" stroke-width="3"/>
+                    <text x="55" y="11" text-anchor="middle" font-size="11" font-weight="bold" fill="#0369A1">${labels[0]}</text>
+                </svg>`;
+            } else if (type === 'persegipanjang') {
+                return `<svg width="130" height="85" viewBox="0 0 130 85" class="mx-auto">
+                    <rect x="20" y="20" width="90" height="45" rx="4" fill="#DBEAFE" stroke="#2563EB" stroke-width="3"/>
+                    <text x="65" y="14" text-anchor="middle" font-size="11" font-weight="bold" fill="#1D4ED8">${labels[0]}</text>
+                    <text x="114" y="46" font-size="11" font-weight="bold" fill="#1D4ED8">${labels[1]}</text>
+                </svg>`;
+            } else if (type === 'segitiga') {
+                return `<svg width="120" height="85" viewBox="0 0 120 85" class="mx-auto">
+                    <polygon points="60,12 20,72 100,72" fill="#FECDD3" stroke="#E11D48" stroke-width="3"/>
+                    <text x="32" y="42" text-anchor="end" font-size="10" font-weight="bold" fill="#9F1239">${labels[0]}</text>
+                    <text x="88" y="42" font-size="10" font-weight="bold" fill="#9F1239">${labels[1]}</text>
+                    <text x="60" y="83" text-anchor="middle" font-size="10" font-weight="bold" fill="#9F1239">${labels[2]}</text>
+                </svg>`;
+            } else if (type === 'segilima') {
+                return `<svg width="110" height="85" viewBox="0 0 110 85" class="mx-auto">
+                    <polygon points="55,10 92,36 78,76 32,76 18,36" fill="#D1FAE5" stroke="#059669" stroke-width="3"/>
+                    <text x="55" y="48" text-anchor="middle" font-size="10" font-weight="bold" fill="#065F46">${labels[0]}</text>
+                </svg>`;
+            } else {
+                return `<svg width="110" height="85" viewBox="0 0 110 85" class="mx-auto">
+                    <polygon points="35,14 75,14 95,43 75,72 35,72 15,43" fill="#FEF3C7" stroke="#D97706" stroke-width="3"/>
+                    <text x="55" y="46" text-anchor="middle" font-size="10" font-weight="bold" fill="#92400E">${labels[0]}</text>
+                </svg>`;
+            }
+        }
+
+        /* --- GAME 1: OPEN THE BOX (6 KOTAK) --- */
+        const openBoxBank = {
+            mudah: [
+                { q: 'Hitung keliling persegi dengan sisi 5 cm!', svg: miniShapeSvg('persegi', ['5 cm']), opts: ['15 cm', '20 cm', '25 cm'], ans: 1, exp: 'Keliling persegi = 4 × s = 4 × 5 cm = 20 cm.' },
+                { q: 'Hitung keliling segitiga sama sisi dengan sisi 6 cm!', svg: miniShapeSvg('segitiga', ['6cm', '6cm', '6cm']), opts: ['18 cm', '12 cm', '24 cm'], ans: 0, exp: 'Keliling segitiga sama sisi = 3 × 6 cm = 18 cm.' },
+                { q: 'Persegi panjang memiliki p = 8 cm dan l = 4 cm. Berapa kelilingnya?', svg: miniShapeSvg('persegipanjang', ['8 cm', '4 cm']), opts: ['12 cm', '32 cm', '24 cm'], ans: 2, exp: 'K = 2 × (8 + 4) = 2 × 12 = 24 cm.' },
+                { q: 'Segi lima beraturan memiliki panjang sisi 4 cm. Kelilingnya adalah...', svg: miniShapeSvg('segilima', ['s = 4 cm']), opts: ['20 cm', '16 cm', '24 cm'], ans: 0, exp: 'Segi lima punya 5 sisi sama panjang: 5 × 4 cm = 20 cm.' },
+                { q: 'Segitiga memiliki sisi 3 cm, 4 cm, dan 5 cm. Kelilingnya yaitu...', svg: miniShapeSvg('segitiga', ['3cm', '4cm', '5cm']), opts: ['10 cm', '12 cm', '15 cm'], ans: 1, exp: 'Jumlahkan semua sisinya: 3 + 4 + 5 = 12 cm.' },
+                { q: 'Segi enam beraturan bersisi 3 cm memiliki keliling...', svg: miniShapeSvg('segienam', ['s = 3 cm']), opts: ['15 cm', '18 cm', '21 cm'], ans: 1, exp: 'Segi enam punya 6 sisi: 6 × 3 cm = 18 cm.' }
+            ],
+            sedang: [
+                { q: 'Keliling persegi adalah 32 cm. Berapa panjang sisinya?', svg: miniShapeSvg('persegi', ['s = ?']), opts: ['6 cm', '8 cm', '16 cm'], ans: 1, exp: 'Sisi persegi = Keliling ÷ 4 = 32 ÷ 4 = 8 cm.' },
+                { q: 'Sebuah taman persegi panjang p = 15 m dan l = 10 m dipagari kawat. Panjang kawatnya...', svg: miniShapeSvg('persegipanjang', ['15 m', '10 m']), opts: ['25 m', '50 m', '150 m'], ans: 1, exp: 'K = 2 × (15 + 10) = 2 × 25 = 50 m.' },
+                { q: 'Segitiga sama kaki alasnya 10 cm dan kedua kaki miringnya 8 cm. Kelilingnya...', svg: miniShapeSvg('segitiga', ['8cm', '8cm', '10cm']), opts: ['26 cm', '18 cm', '28 cm'], ans: 0, exp: 'K = 8 + 8 + 10 = 26 cm.' },
+                { q: 'Keliling segi lima beraturan adalah 45 cm. Panjang satu sisinya adalah...', svg: miniShapeSvg('segilima', ['K=45 cm']), opts: ['8 cm', '9 cm', '10 cm'], ans: 1, exp: 's = 45 cm ÷ 5 sisi = 9 cm.' },
+                { q: 'Belah ketupat memiliki panjang sisi 11 cm. Berapa kelilingnya?', svg: miniShapeSvg('persegi', ['11 cm']), opts: ['44 cm', '22 cm', '33 cm'], ans: 0, exp: 'Belah ketupat punya 4 sisi sama panjang: 4 × 11 = 44 cm.' },
+                { q: 'Segi enam beraturan dengan sisi 9 cm memiliki keliling...', svg: miniShapeSvg('segienam', ['s = 9 cm']), opts: ['45 cm', '54 cm', '63 cm'], ans: 1, exp: 'K = 6 × 9 cm = 54 cm.' }
+            ],
+            menantang: [
+                { q: 'Keliling persegi panjang 40 cm. Jika panjangnya 12 cm, berapa lebarnya?', svg: miniShapeSvg('persegipanjang', ['12 cm', 'l = ?']), opts: ['8 cm', '16 cm', '28 cm'], ans: 0, exp: 'Setengah keliling = 40 ÷ 2 = 20 cm. Lebar = 20 - 12 = 8 cm.' },
+                { q: 'Keliling segitiga sama kaki 34 cm. Jika panjang alasnya 14 cm, panjang kaki miringnya...', svg: miniShapeSvg('segitiga', ['?', '?', '14cm']), opts: ['20 cm', '10 cm', '12 cm'], ans: 1, exp: 'Sisa dua kaki = 34 - 14 = 20 cm. Satu kaki = 20 ÷ 2 = 10 cm.' },
+                { q: 'Sebuah persegi dan segitiga sama sisi punya keliling sama yaitu 24 cm. Selisih panjang sisi keduanya...', svg: miniShapeSvg('persegi', ['K=24']), opts: ['2 cm', '4 cm', '1 cm'], ans: 0, exp: 'Sisi persegi = 24÷4 = 6 cm. Sisi segitiga = 24÷3 = 8 cm. Selisih = 8 - 6 = 2 cm.' },
+                { q: 'Rani berlari mengelilingi lapangan persegi bersisi 15 m sebanyak 2 putaran. Jarak tempuhnya...', svg: miniShapeSvg('persegi', ['15 m']), opts: ['60 m', '120 m', '90 m'], ans: 1, exp: '1 putaran = 4 × 15 = 60 m. 2 putaran = 2 × 60 = 120 m.' },
+                { q: 'Segi delapan beraturan kelilingnya 72 cm. Panjang tiap sisinya...', svg: miniShapeSvg('segienam', ['8 sisi']), opts: ['8 cm', '9 cm', '12 cm'], ans: 1, exp: 's = 72 cm ÷ 8 = 9 cm.' },
+                { q: 'Trapesium sama kaki sisi sejajarnya 10 cm & 16 cm, sisi miringnya 5 cm. Kelilingnya...', svg: miniShapeSvg('persegipanjang', ['10 & 16', '5 cm']), opts: ['31 cm', '36 cm', '42 cm'], ans: 1, exp: 'K = 10 + 16 + 5 + 5 = 36 cm.' }
+            ]
+        };
+
+        let openBoxStatus = [];
+        let openBoxSessionScore = 0;
+
+        function initOpenBoxGame() {
+            const list = openBoxBank[currentDifficulty];
+            openBoxStatus = list.map(() => ({ opened: false, solved: false }));
+            openBoxSessionScore = 0;
+            document.getElementById('openBoxScoreBadge').textContent = `Skor Game: 0 / 60`;
+            document.getElementById('openBoxQuestionModal').classList.add('hidden');
+            renderOpenBoxGrid();
+        }
+
+        function renderOpenBoxGrid() {
+            const grid = document.getElementById('openBoxGrid');
+            const colors = ['from-amber-400 to-orange-500', 'from-sky-400 to-blue-500', 'from-emerald-400 to-teal-500', 'from-rose-400 to-pink-500', 'from-purple-400 to-indigo-500', 'from-yellow-400 to-amber-500'];
+
+            grid.innerHTML = openBoxStatus.map((st, idx) => `
+                <button onclick="openMysteryBox(${idx})" ${st.solved ? 'disabled' : ''}
+                    class="btn-game rounded-2xl p-5 text-white bg-gradient-to-br ${st.solved ? 'from-slate-400 to-slate-500' : colors[idx]} flex flex-col items-center justify-center min-h-[120px] shadow-md">
+                    <span class="text-4xl mb-1">${st.solved ? '✅' : (st.opened ? '📖' : '🎁')}</span>
+                    <span class="font-display font-bold text-lg">Kotak #${idx + 1}</span>
+                    <span class="text-xs font-extrabold bg-black/20 px-2.5 py-0.5 rounded-full mt-1">
+                        ${st.solved ? 'Selesai (+10)' : 'Klik Buka!'}
+                    </span>
+                </button>
+            `).join('');
+        }
+
+        function openMysteryBox(idx) {
+            playSound('open');
+            openBoxStatus[idx].opened = true;
+            renderOpenBoxGrid();
+
+            const item = openBoxBank[currentDifficulty][idx];
+            const modal = document.getElementById('openBoxQuestionModal');
+            modal.classList.remove('hidden');
+            modal.innerHTML = `
+                <div class="flex flex-col sm:flex-row items-center gap-4">
+                    <div class="bg-white p-3 rounded-2xl border border-amber-200 shrink-0">
+                        ${item.svg}
+                    </div>
+                    <div class="flex-1 space-y-3">
+                        <span class="bg-amber-400 text-slate-900 text-xs font-extrabold px-3 py-1 rounded-full">🎁 Peti Misteri #${idx + 1}</span>
+                        <h4 class="font-bold text-slate-800 text-base sm:text-lg">${item.q}</h4>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            ${item.opts.map((opt, oIdx) => `
+                                <button onclick="answerOpenBox(${idx}, ${oIdx})" class="btn-game bg-white hover:bg-sky-100 text-slate-800 font-extrabold py-2.5 px-4 rounded-xl border-2 border-amber-300 text-sm">
+                                    ${opt}
+                                </button>
+                            `).join('')}
+                        </div>
+                        <div id="openBoxFeedback" class="hidden p-3 rounded-xl text-sm font-bold"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function answerOpenBox(boxIdx, optIdx) {
+            const item = openBoxBank[currentDifficulty][boxIdx];
+            const fb = document.getElementById('openBoxFeedback');
+            fb.classList.remove('hidden');
+
+            if (optIdx === item.ans) {
+                playSound('correct');
+                if (!openBoxStatus[boxIdx].solved) {
+                    openBoxStatus[boxIdx].solved = true;
+                    openBoxSessionScore += 10;
+                    document.getElementById('openBoxScoreBadge').textContent = `Skor Game: ${openBoxSessionScore} / 60`;
+                    if (openBoxSessionScore > state.scores.openbox) {
+                        state.scores.openbox = openBoxSessionScore;
+                        saveState();
+                    }
+                }
+                fb.className = 'p-3 rounded-xl text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300';
+                fb.innerHTML = `🎉 <strong>Benar Sekali!</strong> ${item.exp}`;
+                renderOpenBoxGrid();
+                if (openBoxSessionScore === 60) {
+                    playSound('win');
+                    triggerConfetti();
+                }
+            } else {
+                playSound('wrong');
+                fb.className = 'p-3 rounded-xl text-sm font-bold bg-rose-100 text-rose-900 border border-rose-300 animate-shake';
+                fb.innerHTML = `❌ <strong>Belum tepat!</strong> Coba hitung lagi ya. Petunjuk: ${item.exp.split('=')[0]}`;
+            }
+        }
+
+        /* --- GAME 2: DRAG AND DROP (DENGAN KLIK ALTERNATIF) --- */
+        const dragDropBank = {
+            mudah: [
+                { id: 'dd1', label: 'Persegi (s = 4 cm)', svg: miniShapeSvg('persegi', ['4 cm']), target: '16 cm', exp: '4 × 4 cm = 16 cm' },
+                { id: 'dd2', label: 'Segitiga Sama Sisi (s = 7 cm)', svg: miniShapeSvg('segitiga', ['7cm','7cm','7cm']), target: '21 cm', exp: '3 × 7 cm = 21 cm' },
+                { id: 'dd3', label: 'Persegi Panjang (6 × 4 cm)', svg: miniShapeSvg('persegipanjang', ['6 cm','4 cm']), target: '20 cm', exp: '2 × (6 + 4) = 20 cm' },
+                { id: 'dd4', label: 'Segi Lima Beraturan (s = 5 cm)', svg: miniShapeSvg('segilima', ['s=5cm']), target: '25 cm', exp: '5 × 5 cm = 25 cm' },
+                { id: 'dd5', label: 'Segi Enam Beraturan (s = 5 cm)', svg: miniShapeSvg('segienam', ['s=5cm']), target: '30 cm', exp: '6 × 5 cm = 30 cm' }
+            ],
+            sedang: [
+                { id: 'dd1', label: 'Persegi (s = 9 cm)', svg: miniShapeSvg('persegi', ['9 cm']), target: '36 cm', exp: '4 × 9 cm = 36 cm' },
+                { id: 'dd2', label: 'Persegi Panjang (12 × 5 cm)', svg: miniShapeSvg('persegipanjang', ['12 cm','5 cm']), target: '34 cm', exp: '2 × (12 + 5) = 34 cm' },
+                { id: 'dd3', label: 'Segitiga (8, 9, 11 cm)', svg: miniShapeSvg('segitiga', ['8cm','9cm','11cm']), target: '28 cm', exp: '8 + 9 + 11 = 28 cm' },
+                { id: 'dd4', label: 'Segi Lima Beraturan (s = 8 cm)', svg: miniShapeSvg('segilima', ['s=8cm']), target: '40 cm', exp: '5 × 8 cm = 40 cm' },
+                { id: 'dd5', label: 'Segi Enam Beraturan (s = 7 cm)', svg: miniShapeSvg('segienam', ['s=7cm']), target: '42 cm', exp: '6 × 7 cm = 42 cm' }
+            ],
+            menantang: [
+                { id: 'dd1', label: 'Sisi Persegi jika K = 48 cm', svg: miniShapeSvg('persegi', ['K=48']), target: '12 cm', exp: '48 ÷ 4 = 12 cm' },
+                { id: 'dd2', label: 'Lebar P.Panjang (K=38, p=11)', svg: miniShapeSvg('persegipanjang', ['11 cm','l=?']), target: '8 cm', exp: '(38 ÷ 2) - 11 = 8 cm' },
+                { id: 'dd3', label: 'Sisi Segitiga Sama Sisi (K=45)', svg: miniShapeSvg('segitiga', ['?','?','?']), target: '15 cm', exp: '45 ÷ 3 = 15 cm' },
+                { id: 'dd4', label: 'Sisi Segi Lima (K = 55 cm)', svg: miniShapeSvg('segilima', ['K=55']), target: '11 cm', exp: '55 ÷ 5 = 11 cm' },
+                { id: 'dd5', label: 'Sisi Segi Enam (K = 54 cm)', svg: miniShapeSvg('segienam', ['K=54']), target: '9 cm', exp: '54 ÷ 6 = 9 cm' }
+            ]
+        };
+
+        let selectedDragId = null;
+        let matchedDragIds = [];
+        let dragDropSessionScore = 0;
+        let shuffledTargets = [];
+
+        function initDragDropGame() {
+            selectedDragId = null;
+            matchedDragIds = [];
+            dragDropSessionScore = 0;
+            document.getElementById('dragDropScoreBadge').textContent = `Skor Game: 0 / 50`;
+            document.getElementById('dragDropFeedback').classList.add('hidden');
+
+            const items = dragDropBank[currentDifficulty];
+            shuffledTargets = [...items].sort(() => Math.random() - 0.5);
+            renderDragDropBoard();
+        }
+
+        function renderDragDropBoard() {
+            const items = dragDropBank[currentDifficulty];
+            const itemsContainer = document.getElementById('dragItemsContainer');
+            const zonesContainer = document.getElementById('dropZonesContainer');
+
+            itemsContainer.innerHTML = items.map(it => {
+                const isMatched = matchedDragIds.includes(it.id);
+                const isSelected = selectedDragId === it.id;
+                return `
+                    <div draggable="${!isMatched}"
+                        ondragstart="handleDragStart(event, '${it.id}')"
+                        onclick="selectDragItem('${it.id}')"
+                        class="draggable-item ${isSelected ? 'selected' : ''} ${isMatched ? 'opacity-40 pointer-events-none bg-slate-100' : 'bg-white hover:bg-amber-50 cursor-pointer'} p-3 rounded-2xl border-2 border-sky-300 shadow-sm text-center transition">
+                        ${it.svg}
+                        <p class="text-xs font-extrabold text-slate-800 mt-1">${it.label}</p>
+                        <span class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${isMatched ? 'bg-emerald-200 text-emerald-800' : 'bg-sky-100 text-sky-700'}">
+                            ${isMatched ? 'Terpasang ✅' : (isSelected ? 'Dipilih ✨' : 'Tarik / Klik')}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            zonesContainer.innerHTML = shuffledTargets.map(tg => {
+                const isFilled = matchedDragIds.includes(tg.id);
+                return `
+                    <div ondragover="event.preventDefault(); this.classList.add('drag-over')"
+                        ondragleave="this.classList.remove('drag-over')"
+                        ondrop="handleDrop(event, '${tg.id}')"
+                        onclick="handleZoneClick('${tg.id}')"
+                        class="drop-zone ${isFilled ? 'bg-emerald-100 border-emerald-500' : 'bg-white border-dashed border-emerald-400 hover:bg-emerald-50 cursor-pointer'} p-4 rounded-2xl border-2 min-h-[120px] flex flex-col items-center justify-center text-center transition">
+                        <span class="text-xl font-display font-bold ${isFilled ? 'text-emerald-800' : 'text-emerald-600'}">${tg.target}</span>
+                        <p class="text-xs font-bold mt-2 ${isFilled ? 'text-emerald-700' : 'text-slate-400'}">
+                            ${isFilled ? '✅ ' + tg.label : 'Letakkan kartu di sini'}
+                        </p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function handleDragStart(e, id) {
+            selectedDragId = id;
+            e.dataTransfer.setData('text/plain', id);
+        }
+
+        function selectDragItem(id) {
+            if (matchedDragIds.includes(id)) return;
+            playSound('click');
+            selectedDragId = (selectedDragId === id) ? null : id;
+            renderDragDropBoard();
+        }
+
+        function handleDrop(e, targetId) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+            const draggedId = e.dataTransfer.getData('text/plain') || selectedDragId;
+            if (draggedId) checkDragMatch(draggedId, targetId);
+        }
+
+        function handleZoneClick(targetId) {
+            if (matchedDragIds.includes(targetId)) return;
+            if (!selectedDragId) {
+                showToast('Klik dulu salah satu kartu bangun datar di atas ya! 👆');
+                return;
+            }
+            checkDragMatch(selectedDragId, targetId);
+        }
+
+        function checkDragMatch(itemId, targetId) {
+            const items = dragDropBank[currentDifficulty];
+            const itemObj = items.find(i => i.id === itemId);
+            const fb = document.getElementById('dragDropFeedback');
+            fb.classList.remove('hidden');
+
+            if (itemId === targetId) {
+                playSound('correct');
+                matchedDragIds.push(itemId);
+                selectedDragId = null;
+                dragDropSessionScore += 10;
+                document.getElementById('dragDropScoreBadge').textContent = `Skor Game: ${dragDropSessionScore} / 50`;
+                if (dragDropSessionScore > state.scores.dragdrop) {
+                    state.scores.dragdrop = dragDropSessionScore;
+                    saveState();
+                }
+                fb.className = 'p-4 rounded-2xl text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300';
+                fb.innerHTML = `✅ <strong>Cocok!</strong> ${itemObj.label} → ${itemObj.exp}`;
+                renderDragDropBoard();
+                if (matchedDragIds.length === 5) {
+                    playSound('win');
+                    triggerConfetti();
+                }
+            } else {
+                playSound('wrong');
+                fb.className = 'p-4 rounded-2xl text-sm font-bold bg-rose-100 text-rose-900 border border-rose-300 animate-shake';
+                fb.innerHTML = `❌ <strong>Belum cocok!</strong> Coba hitung ulang keliling ${itemObj.label}.`;
+            }
+        }
+
+        /* --- GAME 3: FILL IN THE BLANK (5 SOAL) --- */
+        const fillBlankBank = {
+            mudah: [
+                { q: 'Keliling persegi dengan panjang sisi 7 cm adalah ... cm.', ans: 28, exp: 'K = 4 × 7 cm = 28 cm.' },
+                { q: 'Sebuah segitiga sama sisi memiliki sisi 9 cm. Kelilingnya adalah ... cm.', ans: 27, exp: 'K = 3 × 9 cm = 27 cm.' },
+                { q: 'Persegi panjang memiliki panjang 10 cm dan lebar 6 cm. Kelilingnya adalah ... cm.', ans: 32, exp: 'K = 2 × (10 + 6) = 2 × 16 = 32 cm.' },
+                { q: 'Keliling segi lima beraturan dengan sisi 6 cm adalah ... cm.', ans: 30, exp: 'K = 5 × 6 cm = 30 cm.' },
+                { q: 'Segitiga dengan panjang sisi 5 cm, 6 cm, dan 7 cm memiliki keliling ... cm.', ans: 18, exp: 'K = 5 + 6 + 7 = 18 cm.' }
+            ],
+            sedang: [
+                { q: 'Keliling sebuah saputangan berbentuk persegi adalah 44 cm. Panjang sisinya adalah ... cm.', ans: 11, exp: 's = 44 ÷ 4 = 11 cm.' },
+                { q: 'Papan tulis berbentuk persegi panjang berukuran 18 cm × 12 cm. Kelilingnya adalah ... cm.', ans: 60, exp: 'K = 2 × (18 + 12) = 2 × 30 = 60 cm.' },
+                { q: 'Segi enam beraturan memiliki keliling 48 cm. Panjang setiap sisinya adalah ... cm.', ans: 8, exp: 's = 48 ÷ 6 = 8 cm.' },
+                { q: 'Sebuah belah ketupat memiliki panjang sisi 13 cm. Kelilingnya adalah ... cm.', ans: 52, exp: 'K = 4 × 13 cm = 52 cm.' },
+                { q: 'Trapesium memiliki panjang sisi 6 cm, 8 cm, 12 cm, dan 8 cm. Kelilingnya adalah ... cm.', ans: 34, exp: 'K = 6 + 8 + 12 + 8 = 34 cm.' }
+            ],
+            menantang: [
+                { q: 'Keliling kebun persegi panjang adalah 50 m. Jika panjangnya 15 m, maka lebarnya adalah ... m.', ans: 10, exp: 'Setengah keliling = 50 ÷ 2 = 25 m. Lebar = 25 - 15 = 10 m.' },
+                { q: 'Segitiga sama kaki memiliki keliling 38 cm. Jika alasnya 12 cm, panjang masing-masing kaki miringnya adalah ... cm.', ans: 13, exp: '(38 - 12) ÷ 2 = 26 ÷ 2 = 13 cm.' },
+                { q: 'Keliling segi delapan beraturan dengan panjang sisi 12 cm adalah ... cm.', ans: 96, exp: 'K = 8 × 12 cm = 96 cm.' },
+                { q: 'Dina mengelilingi lapangan persegi bersisi 20 m sebanyak 3 kali. Total jarak lari Dina adalah ... m.', ans: 240, exp: '1 putaran = 4 × 20 = 80 m. 3 putaran = 3 × 80 = 240 m.' },
+                { q: 'Layang-layang memiliki dua sisi pendek 9 cm dan dua sisi panjang 16 cm. Kelilingnya adalah ... cm.', ans: 50, exp: 'K = 2 × (9 + 16) = 2 × 25 = 50 cm.' }
+            ]
+        };
+
+        let fillBlankSolved = [];
+
+        function initFillBlankGame() {
+            const list = fillBlankBank[currentDifficulty];
+            fillBlankSolved = list.map(() => false);
+            document.getElementById('fillBlankScoreBadge').textContent = `Skor Game: 0 / 50`;
+
+            const container = document.getElementById('fillBlankContainer');
+            container.innerHTML = list.map((item, idx) => `
+                <div class="bg-emerald-50/70 p-4 rounded-2xl border border-emerald-200 space-y-2.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <p class="font-bold text-slate-800 text-sm sm:text-base">
+                            <span class="bg-emerald-500 text-white text-xs font-extrabold px-2.5 py-0.5 rounded-full mr-1.5">${idx + 1}</span>
+                            ${item.q}
+                        </p>
+                        <div class="flex items-center gap-2 shrink-0">
+                            <input type="number" id="fbInput-${idx}" placeholder="Angka"
+                                class="w-24 px-3 py-2 rounded-xl border-2 border-emerald-300 font-extrabold text-center text-slate-800 focus:outline-none focus:border-emerald-600">
+                            <button onclick="checkFillBlank(${idx})" class="btn-game bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-extrabold px-4 py-2.5 rounded-xl">
+                                Cek
+                            </button>
+                        </div>
+                    </div>
+                    <div id="fbFeedback-${idx}" class="hidden p-2.5 rounded-xl text-xs sm:text-sm font-bold"></div>
+                </div>
+            `).join('');
+        }
+
+        function checkFillBlank(idx) {
+            const item = fillBlankBank[currentDifficulty][idx];
+            const val = parseFloat(document.getElementById(`fbInput-${idx}`).value);
+            const fb = document.getElementById(`fbFeedback-${idx}`);
+            fb.classList.remove('hidden');
+
+            if (val === item.ans) {
+                playSound('correct');
+                fillBlankSolved[idx] = true;
+                const score = fillBlankSolved.filter(Boolean).length * 10;
+                document.getElementById('fillBlankScoreBadge').textContent = `Skor Game: ${score} / 50`;
+                if (score > state.scores.fillblank) {
+                    state.scores.fillblank = score;
+                    saveState();
+                }
+                fb.className = 'p-2.5 rounded-xl text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300';
+                fb.innerHTML = `🎉 <strong>Tepat!</strong> ${item.exp}`;
+                if (score === 50) {
+                    playSound('win');
+                    triggerConfetti();
+                }
+            } else {
+                playSound('wrong');
+                fb.className = 'p-2.5 rounded-xl text-xs sm:text-sm font-bold bg-rose-100 text-rose-900 border border-rose-300 animate-shake';
+                fb.innerHTML = `❌ <strong>Belum tepat.</strong> Coba periksa lagi rumusnya dan ketik angka yang benar!`;
+            }
+        }
+
+        /* --- GAME 4: MENJODOHKAN (5 PASANGAN) --- */
+        const matchingBank = {
+            mudah: [
+                { id: 'm1', left: 'Rumus Keliling Persegi', right: 'K = 4 × s', exp: 'Persegi memiliki 4 sisi sama panjang.' },
+                { id: 'm2', left: 'Rumus Keliling Persegi Panjang', right: 'K = 2 × (p + l)', exp: 'Dua kali jumlah panjang dan lebar.' },
+                { id: 'm3', left: 'Rumus Keliling Segitiga Sama Sisi', right: 'K = 3 × s', exp: 'Segitiga sama sisi punya 3 sisi sama panjang.' },
+                { id: 'm4', left: 'Rumus Keliling Segi Lima Beraturan', right: 'K = 5 × s', exp: 'Segi lima beraturan punya 5 sisi sama panjang.' },
+                { id: 'm5', left: 'Rumus Keliling Segi Enam Beraturan', right: 'K = 6 × s', exp: 'Segi enam beraturan punya 6 sisi sama panjang.' }
+            ],
+            sedang: [
+                { id: 'm1', left: 'Persegi dengan sisi 8 cm', right: 'Keliling = 32 cm', exp: '4 × 8 cm = 32 cm.' },
+                { id: 'm2', left: 'Persegi panjang 9 cm × 5 cm', right: 'Keliling = 28 cm', exp: '2 × (9 + 5) = 28 cm.' },
+                { id: 'm3', left: 'Segitiga sisi 6 cm, 8 cm, 10 cm', right: 'Keliling = 24 cm', exp: '6 + 8 + 10 = 24 cm.' },
+                { id: 'm4', left: 'Segi lima beraturan sisi 7 cm', right: 'Keliling = 35 cm', exp: '5 × 7 cm = 35 cm.' },
+                { id: 'm5', left: 'Segi enam beraturan sisi 6 cm', right: 'Keliling = 36 cm', exp: '6 × 6 cm = 36 cm.' }
+            ],
+            menantang: [
+                { id: 'm1', left: 'Persegi berkeliling 52 cm', right: 'Panjang sisi = 13 cm', exp: '52 ÷ 4 = 13 cm.' },
+                { id: 'm2', left: 'Persegi panjang K=42 cm, p=12 cm', right: 'Lebar = 9 cm', exp: '(42 ÷ 2) - 12 = 9 cm.' },
+                { id: 'm3', left: 'Segitiga sama sisi K = 57 cm', right: 'Panjang sisi = 19 cm', exp: '57 ÷ 3 = 19 cm.' },
+                { id: 'm4', left: 'Segi lima beraturan K = 65 cm', right: 'Panjang sisi = 13 cm', exp: '65 ÷ 5 = 13 cm.' },
+                { id: 'm5', left: 'Segi enam beraturan K = 84 cm', right: 'Panjang sisi = 14 cm', exp: '84 ÷ 6 = 14 cm.' }
+            ]
+        };
+
+        let selectedLeftMatch = null;
+        let matchedPairs = [];
+        let shuffledRightMatch = [];
+
+        const pairBadgeColors = [
+            'bg-emerald-100 border-emerald-500 text-emerald-900',
+            'bg-sky-100 border-sky-500 text-sky-900',
+            'bg-amber-100 border-amber-500 text-amber-900',
+            'bg-rose-100 border-rose-500 text-rose-900',
+            'bg-purple-100 border-purple-500 text-purple-900'
+        ];
+
+        function initMatchingGame() {
+            selectedLeftMatch = null;
+            matchedPairs = [];
+            document.getElementById('matchingScoreBadge').textContent = `Skor Game: 0 / 50`;
+            document.getElementById('matchingFeedback').classList.add('hidden');
+
+            const list = matchingBank[currentDifficulty];
+            shuffledRightMatch = [...list].sort(() => Math.random() - 0.5);
+            renderMatchingBoard();
+        }
+
+        function renderMatchingBoard() {
+            const list = matchingBank[currentDifficulty];
+            const leftCol = document.getElementById('matchLeftCol');
+            const rightCol = document.getElementById('matchRightCol');
+
+            leftCol.innerHTML = list.map((item, idx) => {
+                const pairIndex = matchedPairs.indexOf(item.id);
+                const isMatched = pairIndex !== -1;
+                const isSelected = selectedLeftMatch === item.id;
+                let cls = 'bg-white border-slate-200 hover:bg-purple-50 text-slate-800';
+                if (isMatched) cls = pairBadgeColors[pairIndex];
+                else if (isSelected) cls = 'bg-purple-100 border-purple-600 ring-2 ring-purple-400 text-purple-900';
+
+                return `
+                    <button onclick="selectMatchLeft('${item.id}')" ${isMatched ? 'disabled' : ''}
+                        class="w-full text-left p-3.5 rounded-2xl border-2 font-extrabold text-sm transition flex items-center justify-between ${cls}">
+                        <span>${item.left}</span>
+                        <span>${isMatched ? '🔗 #' + (pairIndex + 1) : (isSelected ? '👉' : '⚪')}</span>
+                    </button>
+                `;
+            }).join('');
+
+            rightCol.innerHTML = shuffledRightMatch.map(item => {
+                const pairIndex = matchedPairs.indexOf(item.id);
+                const isMatched = pairIndex !== -1;
+                let cls = 'bg-white border-slate-200 hover:bg-indigo-50 text-slate-800';
+                if (isMatched) cls = pairBadgeColors[pairIndex];
+
+                return `
+                    <button onclick="selectMatchRight('${item.id}')" ${isMatched ? 'disabled' : ''}
+                        class="w-full text-left p-3.5 rounded-2xl border-2 font-extrabold text-sm transition flex items-center justify-between ${cls}">
+                        <span>${item.right}</span>
+                        <span>${isMatched ? '✅ #' + (pairIndex + 1) : '🎯'}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectMatchLeft(id) {
+            if (matchedPairs.includes(id)) return;
+            playSound('click');
+            selectedLeftMatch = id;
+            renderMatchingBoard();
+        }
+
+        function selectMatchRight(rightId) {
+            if (matchedPairs.includes(rightId)) return;
+            if (!selectedLeftMatch) {
+                showToast('Pilih item di Kolom Kiri terlebih dahulu ya! 👈');
+                return;
+            }
+
+            const list = matchingBank[currentDifficulty];
+            const obj = list.find(i => i.id === selectedLeftMatch);
+            const fb = document.getElementById('matchingFeedback');
+            fb.classList.remove('hidden');
+
+            if (selectedLeftMatch === rightId) {
+                playSound('correct');
+                matchedPairs.push(rightId);
+                selectedLeftMatch = null;
+                const score = matchedPairs.length * 10;
+                document.getElementById('matchingScoreBadge').textContent = `Skor Game: ${score} / 50`;
+                if (score > state.scores.matching) {
+                    state.scores.matching = score;
+                    saveState();
+                }
+                fb.className = 'p-4 rounded-2xl text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300';
+                fb.innerHTML = `🎉 <strong>Pasangan Tepat!</strong> ${obj.left} ↔ ${obj.right} (${obj.exp})`;
+                renderMatchingBoard();
+                if (matchedPairs.length === 5) {
+                    playSound('win');
+                    triggerConfetti();
+                }
+            } else {
+                playSound('wrong');
+                fb.className = 'p-4 rounded-2xl text-sm font-bold bg-rose-100 text-rose-900 border border-rose-300 animate-shake';
+                fb.innerHTML = `❌ <strong>Belum berpasangan!</strong> Coba cocokkan lagi dengan teliti.`;
+            }
+        }
+
+        /* =========================================================
+           7. MENU KUIS (PILIHAN GANDA, BENAR/SALAH, TANTANGAN CEPAT)
+           ========================================================= */
+        function switchQuizMode(mode) {
+            playSound('click');
+            stopSpeedTimer();
+            document.querySelectorAll('.quiz-panel').forEach(p => p.classList.add('hidden'));
+            document.getElementById('quiz-' + mode).classList.remove('hidden');
+
+            document.querySelectorAll('.quiz-mode-btn').forEach(btn => {
+                if (btn.dataset.qmode === mode) {
+                    btn.className = 'quiz-mode-btn btn-game p-3.5 rounded-2xl text-left bg-purple-600 text-white';
+                } else {
+                    btn.className = 'quiz-mode-btn btn-game p-3.5 rounded-2xl text-left bg-slate-100 text-slate-800 hover:bg-purple-50';
+                }
+            });
+
+            if (mode === 'pg') initPGQuiz();
+            if (mode === 'tf') initTFQuiz();
+            if (mode === 'speed') renderSpeedIntro();
+        }
+
+        /* --- KUIS 1: PILIHAN GANDA (6 SOAL BERJENJANG) --- */
+        const pgQuestions = [
+            {
+                level: '🌱 Mudah',
+                q: 'Perhatikan gambar persegi di samping. Jika panjang sisinya 9 cm, berapakah kelilingnya?',
+                svg: miniShapeSvg('persegi', ['9 cm']),
+                opts: ['18 cm', '27 cm', '36 cm', '81 cm'],
+                ans: 2,
+                exp: 'Keliling persegi = 4 × sisi = 4 × 9 cm = 36 cm.'
+            },
+            {
+                level: '🌱 Mudah',
+                q: 'Sebuah segitiga memiliki panjang sisi-sisi 7 cm, 8 cm, dan 10 cm. Keliling segitiga tersebut adalah...',
+                svg: miniShapeSvg('segitiga', ['7 cm', '8 cm', '10 cm']),
+                opts: ['25 cm', '24 cm', '26 cm', '30 cm'],
+                ans: 0,
+                exp: 'Keliling segitiga = jumlah semua sisinya = 7 + 8 + 10 = 25 cm.'
+            },
+            {
+                level: '🌿 Sedang',
+                q: 'Meja belajar kakak berbentuk persegi panjang dengan panjang 14 cm dan lebar 9 cm. Keliling permukaan meja tersebut adalah...',
+                svg: miniShapeSvg('persegipanjang', ['14 cm', '9 cm']),
+                opts: ['23 cm', '46 cm', '126 cm', '37 cm'],
+                ans: 1,
+                exp: 'Keliling persegi panjang = 2 × (p + l) = 2 × (14 + 9) = 2 × 23 = 46 cm.'
+            },
+            {
+                level: '🌿 Sedang',
+                q: 'Sebuah rambu lalu lintas berbentuk segi enam beraturan dengan panjang sisi 12 cm. Berapa keliling rambu tersebut?',
+                svg: miniShapeSvg('segienam', ['s = 12 cm']),
+                opts: ['60 cm', '72 cm', '84 cm', '48 cm'],
+                ans: 1,
+                exp: 'Segi enam beraturan memiliki 6 sisi sama panjang: 6 × 12 cm = 72 cm.'
+            },
+            {
+                level: '🔥 Menantang',
+                q: 'Ayah membuat bingkai foto berbentuk persegi panjang dengan keliling 64 cm. Jika panjang bingkai 20 cm, berapakah lebarnya?',
+                svg: miniShapeSvg('persegipanjang', ['20 cm', 'l = ?']),
+                opts: ['12 cm', '24 cm', '44 cm', '16 cm'],
+                ans: 0,
+                exp: 'Setengah keliling = 64 ÷ 2 = 32 cm. Lebar = 32 - 20 = 12 cm.'
+            },
+            {
+                level: '🔥 Menantang',
+                q: 'Taman kota berbentuk segi lima beraturan memiliki keliling 85 meter. Berapa meter panjang setiap sisi taman tersebut?',
+                svg: miniShapeSvg('segilima', ['K = 85 m']),
+                opts: ['15 m', '17 m', '19 m', '21 m'],
+                ans: 1,
+                exp: 'Panjang sisi segi lima beraturan = Keliling ÷ 5 = 85 ÷ 5 = 17 meter.'
+            }
+        ];
+
+        let pgIdx = 0, pgScore = 0, pgAnswered = false;
+
+        function initPGQuiz() {
+            pgIdx = 0;
+            pgScore = 0;
+            pgAnswered = false;
+            renderPGQuestion();
+        }
+
+        function renderPGQuestion() {
+            const container = document.getElementById('pgContainer');
+            if (pgIdx >= pgQuestions.length) {
+                if (pgScore > state.scores.quizPG) {
+                    state.scores.quizPG = pgScore;
+                    saveState();
+                }
+                if (pgScore >= 40) { playSound('win'); triggerConfetti(); }
+                container.innerHTML = `
+                    <div class="text-center py-6 space-y-4">
+                        <div class="text-6xl">🏆</div>
+                        <h3 class="text-2xl font-bold text-slate-800">Kuis Pilihan Ganda Selesai!</h3>
+                        <p class="text-lg font-extrabold text-purple-600">Skor Akhir Kamu: ${pgScore} / 60 Poin</p>
+                        <p class="text-sm text-slate-600 max-w-md mx-auto">
+                            ${pgScore >= 50 ? 'Luar biasa! Kamu sudah sangat mahir menghitung keliling berbagai bangun datar!' : 'Bagus! Ayo coba ulangi lagi untuk mendapatkan skor sempurna 60!'}
+                        </p>
+                        <button onclick="initPGQuiz()" class="btn-game bg-purple-600 hover:bg-purple-700 text-white font-extrabold px-6 py-3 rounded-2xl">
+                            🔄 Ulangi Kuis Pilihan Ganda
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const qObj = pgQuestions[pgIdx];
+            pgAnswered = false;
+
+            container.innerHTML = `
+                <div class="space-y-5">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-purple-100 text-purple-800 text-xs font-extrabold px-3 py-1 rounded-full">
+                            Soal ${pgIdx + 1} dari ${pgQuestions.length} • ${qObj.level}
+                        </span>
+                        <span class="text-sm font-extrabold text-amber-600">Skor: ${pgScore}</span>
+                    </div>
+
+                    <div class="bg-slate-50 rounded-2xl p-5 border border-slate-200 flex flex-col sm:flex-row items-center gap-5">
+                        <div class="bg-white p-3 rounded-2xl border border-slate-200 shrink-0">
+                            ${qObj.svg}
+                        </div>
+                        <h3 class="text-base sm:text-lg font-bold text-slate-800 leading-relaxed">${qObj.q}</h3>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        ${qObj.opts.map((opt, i) => `
+                            <button onclick="selectPGAnswer(${i})" id="pgOpt-${i}"
+                                class="btn-game text-left p-4 rounded-2xl bg-white hover:bg-purple-50 border-2 border-slate-200 font-extrabold text-slate-800 flex items-center gap-3">
+                                <span class="w-8 h-8 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-display">${String.fromCharCode(65 + i)}</span>
+                                <span>${opt}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+
+                    <div id="pgFeedback" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+
+                    <div class="text-right">
+                        <button id="pgNextBtn" onclick="nextPGQuestion()" class="hidden btn-game bg-sky-500 hover:bg-sky-600 text-white font-extrabold px-6 py-3 rounded-2xl">
+                            Soal Berikutnya ➡️
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function selectPGAnswer(optIdx) {
+            if (pgAnswered) return;
+            pgAnswered = true;
+            const qObj = pgQuestions[pgIdx];
+            const fb = document.getElementById('pgFeedback');
+            fb.classList.remove('hidden');
+
+            document.querySelectorAll('[id^="pgOpt-"]').forEach((btn, idx) => {
+                if (idx === qObj.ans) {
+                    btn.className = 'btn-game text-left p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-500 font-extrabold text-emerald-900 flex items-center gap-3';
+                } else if (idx === optIdx) {
+                    btn.className = 'btn-game text-left p-4 rounded-2xl bg-rose-100 border-2 border-rose-500 font-extrabold text-rose-900 flex items-center gap-3';
+                }
+            });
+
+            if (optIdx === qObj.ans) {
+                playSound('correct');
+                pgScore += 10;
+                fb.className = 'p-4 rounded-2xl text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300';
+                fb.innerHTML = `🎉 <strong>Jawaban Benar! (+10 Poin)</strong><br>${qObj.exp}`;
+            } else {
+                playSound('wrong');
+                fb.className = 'p-4 rounded-2xl text-sm font-bold bg-rose-100 text-rose-900 border border-rose-300';
+                fb.innerHTML = `❌ <strong>Kurang tepat.</strong><br>Penjelasan: ${qObj.exp}`;
+            }
+
+            document.getElementById('pgNextBtn').classList.remove('hidden');
+        }
+
+        function nextPGQuestion() {
+            playSound('click');
+            pgIdx++;
+            renderPGQuestion();
+        }
+
+        /* --- KUIS 2: BENAR / SALAH (6 PERNYATAAN) --- */
+        const tfQuestions = [
+            {
+                stmt: 'Keliling sebuah persegi dengan panjang sisi 6 cm adalah 24 cm.',
+                isTrue: true,
+                exp: 'BENAR! Karena persegi memiliki 4 sisi sama panjang, maka K = 4 × 6 cm = 24 cm.'
+            },
+            {
+                stmt: 'Rumus menghitung keliling persegi panjang adalah panjang × lebar (p × l).',
+                isTrue: false,
+                exp: 'SALAH! p × l adalah rumus LUAS. Rumus KELILING persegi panjang adalah 2 × (p + l).'
+            },
+            {
+                stmt: 'Segitiga sama sisi yang kelilingnya 30 cm memiliki panjang sisi masing-masing 10 cm.',
+                isTrue: true,
+                exp: 'BENAR! 30 cm dibagi 3 sisi sama panjang = 10 cm.'
+            },
+            {
+                stmt: 'Keliling segi lima beraturan bersisi 8 cm sama dengan keliling persegi bersisi 10 cm.',
+                isTrue: true,
+                exp: 'BENAR! Segi lima: 5 × 8 = 40 cm. Persegi: 4 × 10 = 40 cm. Keduanya sama-sama 40 cm!'
+            },
+            {
+                stmt: 'Untuk menghitung keliling bangun datar, kita juga harus menjumlahkan garis diagonal di bagian dalamnya.',
+                isTrue: false,
+                exp: 'SALAH! Keliling hanya menghitung jumlah panjang SISI TEPI LUAR yang mengelilingi bangun.'
+            },
+            {
+                stmt: 'Jika keliling segi enam beraturan adalah 54 cm, maka panjang setiap sisinya adalah 9 cm.',
+                isTrue: true,
+                exp: 'BENAR! Segi enam punya 6 sisi sama panjang: 54 cm ÷ 6 = 9 cm.'
+            }
+        ];
+
+        let tfIdx = 0, tfScore = 0, tfAnswered = false;
+
+        function initTFQuiz() {
+            tfIdx = 0;
+            tfScore = 0;
+            tfAnswered = false;
+            renderTFQuestion();
+        }
+
+        function renderTFQuestion() {
+            const container = document.getElementById('tfContainer');
+            if (tfIdx >= tfQuestions.length) {
+                if (tfScore > state.scores.quizTF) {
+                    state.scores.quizTF = tfScore;
+                    saveState();
+                }
+                if (tfScore >= 40) { playSound('win'); triggerConfetti(); }
+                container.innerHTML = `
+                    <div class="text-center py-6 space-y-4">
+                        <div class="text-6xl">⚖️</div>
+                        <h3 class="text-2xl font-bold text-slate-800">Kuis Benar / Salah Selesai!</h3>
+                        <p class="text-lg font-extrabold text-emerald-600">Skor Kamu: ${tfScore} / 60 Poin</p>
+                        <button onclick="initTFQuiz()" class="btn-game bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold px-6 py-3 rounded-2xl">
+                            🔄 Mainkan Lagi
+                        </button>
+                    </div>
+                `;
+                return;
+            }
+
+            const qObj = tfQuestions[tfIdx];
+            tfAnswered = false;
+
+            container.innerHTML = `
+                <div class="space-y-5 max-w-2xl mx-auto">
+                    <div class="flex items-center justify-between">
+                        <span class="bg-emerald-100 text-emerald-800 text-xs font-extrabold px-3 py-1 rounded-full">
+                            Pernyataan ${tfIdx + 1} dari ${tfQuestions.length}
+                        </span>
+                        <span class="text-sm font-extrabold text-amber-600">Skor: ${tfScore}</span>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-emerald-50 to-sky-50 border-2 border-emerald-200 rounded-3xl p-6 text-center">
+                        <p class="text-lg sm:text-xl font-bold text-slate-800 leading-relaxed">"${qObj.stmt}"</p>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <button onclick="answerTF(true)" class="btn-game bg-emerald-500 hover:bg-emerald-600 text-white font-display font-bold text-xl py-4 rounded-2xl flex items-center justify-center gap-2">
+                            <span>✅</span> BENAR
+                        </button>
+                        <button onclick="answerTF(false)" class="btn-game bg-rose-500 hover:bg-rose-600 text-white font-display font-bold text-xl py-4 rounded-2xl flex items-center justify-center gap-2">
+                            <span>❌</span> SALAH
+                        </button>
+                    </div>
+
+                    <div id="tfFeedback" class="hidden p-4 rounded-2xl text-sm font-bold"></div>
+
+                    <div class="text-right">
+                        <button id="tfNextBtn" onclick="nextTFQuestion()" class="hidden btn-game bg-sky-500 hover:bg-sky-600 text-white font-extrabold px-6 py-3 rounded-2xl">
+                            Lanjut ➡️
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function answerTF(userChoice) {
+            if (tfAnswered) return;
+            tfAnswered = true;
+            const qObj = tfQuestions[tfIdx];
+            const fb = document.getElementById('tfFeedback');
+            fb.classList.remove('hidden');
+
+            if (userChoice === qObj.isTrue) {
+                playSound('correct');
+                tfScore += 10;
+                fb.className = 'p-4 rounded-2xl text-sm font-bold bg-emerald-100 text-emerald-900 border border-emerald-300';
+                fb.innerHTML = `🎉 <strong>Tepat Sekali! (+10 Poin)</strong><br>${qObj.exp}`;
+            } else {
+                playSound('wrong');
+                fb.className = 'p-4 rounded-2xl text-sm font-bold bg-rose-100 text-rose-900 border border-rose-300';
+                fb.innerHTML = `❌ <strong>Kurang tepat.</strong><br>${qObj.exp}`;
+            }
+            document.getElementById('tfNextBtn').classList.remove('hidden');
+        }
+
+        function nextTFQuestion() {
+            playSound('click');
+            tfIdx++;
+            renderTFQuestion();
+        }
+
+        /* --- KUIS 3: TANTANGAN CEPAT (SPEED CHALLENGE 60 DETIK) --- */
+        let speedTimer = null;
+        let speedTimeLeft = 60;
+        let speedScore = 0;
+        let speedStreak = 0;
+        let currentSpeedQ = null;
+
+        function stopSpeedTimer() {
+            if (speedTimer) {
+                clearInterval(speedTimer);
+                speedTimer = null;
+            }
+        }
+
+        function renderSpeedIntro() {
+            stopSpeedTimer();
+            const container = document.getElementById('speedContainer');
+            container.innerHTML = `
+                <div class="text-center py-6 max-w-lg mx-auto space-y-4">
+                    <div class="text-6xl animate-float">⚡</div>
+                    <h3 class="text-2xl sm:text-3xl font-bold text-slate-800">Tantangan Cepat 60 Detik!</h3>
+                    <p class="text-sm sm:text-base text-slate-600 font-semibold">
+                        Jawab sebanyak mungkin soal keliling bangun datar dalam waktu <strong>60 detik</strong>! Jawab benar berturut-turut untuk mendapatkan <strong>Bonus Combo 🔥</strong>!
+                    </p>
+                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-sm font-extrabold text-amber-800">
+                        🏅 Rekor Tertinggi Kamu: ${state.scores.speedHigh} Poin
+                    </div>
+                    <button onclick="startSpeedChallenge()" class="btn-game bg-amber-400 hover:bg-amber-300 text-slate-900 font-display font-bold text-xl px-8 py-4 rounded-2xl">
+                        🚀 Mulai Tantangan Cepat!
+                    </button>
+                </div>
+            `;
+        }
+
+        function generateRandomSpeedQuestion() {
+            const types = ['persegi', 'pp', 'segitiga', 'segilima', 'segienam'];
+            const t = types[Math.floor(Math.random() * types.length)];
+            let q = '', ans = 0;
+
+            if (t === 'persegi') {
+                const s = Math.floor(Math.random() * 11) + 2;
+                q = `Keliling persegi dengan sisi ${s} cm = ?`;
+                ans = 4 * s;
+            } else if (t === 'pp') {
+                const p = Math.floor(Math.random() * 10) + 4;
+                const l = Math.floor(Math.random() * 7) + 2;
+                q = `Keliling persegi panjang (${p} cm × ${l} cm) = ?`;
+                ans = 2 * (p + l);
+            } else if (t === 'segitiga') {
+                const s = Math.floor(Math.random() * 12) + 3;
+                q = `Keliling segitiga sama sisi bersisi ${s} cm = ?`;
+                ans = 3 * s;
+            } else if (t === 'segilima') {
+                const s = Math.floor(Math.random() * 9) + 2;
+                q = `Keliling segi lima beraturan bersisi ${s} cm = ?`;
+                ans = 5 * s;
+            } else {
+                const s = Math.floor(Math.random() * 8) + 2;
+                q = `Keliling segi enam beraturan bersisi ${s} cm = ?`;
+                ans = 6 * s;
+            }
+
+            // Buat 3 pilihan pengecoh unik
+            let opts = new Set([ans]);
+            while (opts.size < 4) {
+                const offset = (Math.floor(Math.random() * 5) + 1) * (Math.random() > 0.5 ? 2 : -2);
+                if (ans + offset > 0) opts.add(ans + offset);
+            }
+            return { q, ans, opts: Array.from(opts).sort(() => Math.random() - 0.5) };
+        }
+
+        function startSpeedChallenge() {
+            playSound('open');
+            speedTimeLeft = 60;
+            speedScore = 0;
+            speedStreak = 0;
+            nextSpeedQuestion();
+
+            stopSpeedTimer();
+            speedTimer = setInterval(() => {
+                speedTimeLeft--;
+                const timerEl = document.getElementById('speedTimerText');
+                const barEl = document.getElementById('speedTimerBar');
+                if (timerEl) timerEl.textContent = speedTimeLeft + 'd';
+                if (barEl) barEl.style.width = ((speedTimeLeft / 60) * 100) + '%';
+
+                if (speedTimeLeft <= 0) {
+                    finishSpeedChallenge();
+                }
+            }, 1000);
+        }
+
+        function nextSpeedQuestion() {
+            currentSpeedQ = generateRandomSpeedQuestion();
+            const container = document.getElementById('speedContainer');
+            container.innerHTML = `
+                <div class="max-w-xl mx-auto space-y-4">
+                    <!-- Top Bar Timer & Skor -->
+                    <div class="flex items-center justify-between bg-slate-100 p-3 rounded-2xl">
+                        <div class="flex items-center gap-2">
+                            <span class="text-xl">⏱️</span>
+                            <span id="speedTimerText" class="font-display font-bold text-xl text-rose-600">${speedTimeLeft}d</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${speedStreak >= 2 ? `<span class="bg-orange-500 text-white text-xs font-extrabold px-2.5 py-1 rounded-full animate-bounce">🔥 Combo x${speedStreak}</span>` : ''}
+                            <span class="bg-amber-400 text-slate-900 font-extrabold px-3.5 py-1 rounded-xl text-sm">Skor: ${speedScore}</span>
+                        </div>
+                    </div>
+
+                    <!-- Progress Waktu -->
+                    <div class="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                        <div id="speedTimerBar" class="bg-gradient-to-r from-rose-500 to-amber-400 h-full transition-all duration-300" style="width: ${(speedTimeLeft / 60) * 100}%"></div>
+                    </div>
+
+                    <!-- Soal Cepat -->
+                    <div class="bg-amber-50 border-2 border-amber-300 rounded-3xl p-6 text-center">
+                        <p class="text-xl sm:text-2xl font-display font-bold text-slate-800">${currentSpeedQ.q}</p>
+                    </div>
+
+                    <!-- 4 Pilihan Besar -->
+                    <div class="grid grid-cols-2 gap-3">
+                        ${currentSpeedQ.opts.map(opt => `
+                            <button onclick="answerSpeed(${opt})" class="btn-game bg-white hover:bg-sky-100 border-2 border-sky-300 py-4 rounded-2xl font-display font-bold text-xl text-sky-900">
+                                ${opt} cm
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function answerSpeed(chosen) {
+            if (chosen === currentSpeedQ.ans) {
+                playSound('correct');
+                speedStreak++;
+                const bonus = speedStreak >= 3 ? 5 : 0;
+                speedScore += (10 + bonus);
+            } else {
+                playSound('wrong');
+                speedStreak = 0;
+            }
+            nextSpeedQuestion();
+        }
+
+        function finishSpeedChallenge() {
+            stopSpeedTimer();
+            playSound('win');
+            if (speedScore > state.scores.speedHigh) {
+                state.scores.speedHigh = speedScore;
+                saveState();
+                triggerConfetti();
+            }
+
+            const container = document.getElementById('speedContainer');
+            container.innerHTML = `
+                <div class="text-center py-6 max-w-md mx-auto space-y-4 animate-pop">
+                    <div class="text-6xl">⚡🏆</div>
+                    <h3 class="text-2xl font-bold text-slate-800">Waktu Habis!</h3>
+                    <div class="bg-amber-50 border-2 border-amber-300 rounded-3xl p-5 space-y-1">
+                        <p class="text-xs font-extrabold uppercase text-amber-700">Skor Tantangan Cepat</p>
+                        <p class="text-4xl font-display font-bold text-amber-600">${speedScore} Poin</p>
+                        <p class="text-xs font-bold text-slate-500">Rekor Tertinggi: ${state.scores.speedHigh} Poin</p>
+                    </div>
+                    <button onclick="startSpeedChallenge()" class="btn-game bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold px-6 py-3 rounded-2xl">
+                        🔄 Main Tantangan Cepat Lagi
+                    </button>
+                </div>
+            `;
+        }
+
+        /* =========================================================
+           8. MENU HASIL, LENCANA (BADGES) & REFLEKSI
+           ========================================================= */
+        const badgesList = [
+            { id: 'b1', icon: '📚', title: 'Pembaca Tekun', desc: 'Menyelesaikan bacaan materi', check: s => s.scores.materi > 0 },
+            { id: 'b2', icon: '🔬', title: 'Ilmuwan Geometri', desc: 'Mencapai misi di Lab Simulasi', check: s => s.scores.simulasi > 0 },
+            { id: 'b3', icon: '🎁', title: 'Pemburu Harta', desc: 'Skor min. 40 di Open the Box', check: s => s.scores.openbox >= 40 },
+            { id: 'b4', icon: '🧩', title: 'Ahli Pencocok', desc: 'Menuntaskan Drag & Drop / Jodohkan', check: s => (s.scores.dragdrop >= 40 || s.scores.matching >= 40) },
+            { id: 'b5', icon: '📝', title: 'Bintang Kuis', desc: 'Skor min. 40 di Kuis PG / Benar-Salah', check: s => (s.scores.quizPG >= 40 || s.scores.quizTF >= 40) },
+            { id: 'b6', icon: '⚡', title: 'Juara Kilat', desc: 'Meraih min. 50 poin di Tantangan Cepat', check: s => s.scores.speedHigh >= 50 }
+        ];
+
+        function getUnlockedBadgesCount() {
+            return badgesList.filter(b => b.check(state)).length;
+        }
+
+        function renderReportPage() {
+            const total = getTotalScore();
+            document.getElementById('reportStudentName').textContent = state.studentName;
+            document.getElementById('reportTotalScore').textContent = total;
+            document.getElementById('reportRankBadge').textContent = getLevelTitle(total);
+
+            // Pesan motivasi personal
+            let mot = '';
+            if (total >= 300) {
+                mot = `Luar biasa, ${state.studentName}! Kamu telah menguasai konsep keliling segitiga, segiempat, dan segi banyak dengan sangat gemilang!`;
+            } else if (total >= 150) {
+                mot = `Hebat sekali, ${state.studentName}! Kemampuanmu menghitung keliling bangun datar semakin tajam. Teruskan ke tantangan berikutnya!`;
+            } else {
+                mot = `Semangat bertualang, ${state.studentName}! Coba selesaikan simulasi, permainan, dan kuis untuk mengumpulkan semua lencana juara!`;
+            }
+            document.getElementById('reportMotivation').textContent = mot;
+
+            // Rincian skor aktivitas
+            const items = [
+                { label: '📚 Materi Belajar', val: state.scores.materi, max: 20, color: 'emerald' },
+                { label: '🔬 Lab Simulasi', val: state.scores.simulasi, max: 30, color: 'amber' },
+                { label: '🎁 Open the Box', val: state.scores.openbox, max: 60, color: 'orange' },
+                { label: '🧩 Drag & Drop', val: state.scores.dragdrop, max: 50, color: 'sky' },
+                { label: '✏️ Fill in the Blank', val: state.scores.fillblank, max: 50, color: 'teal' },
+                { label: '🔗 Menjodohkan', val: state.scores.matching, max: 50, color: 'purple' },
+                { label: '🎯 Kuis Pilihan Ganda', val: state.scores.quizPG, max: 60, color: 'indigo' },
+                { label: '⚡ Tantangan Cepat', val: state.scores.speedHigh, max: 100, color: 'rose' }
+            ];
+
+            document.getElementById('reportBreakdownGrid').innerHTML = items.map(it => `
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <div class="text-xs font-extrabold text-slate-600 mb-1">${it.label}</div>
+                    <div class="text-xl font-display font-bold text-${it.color}-600">${it.val} <span class="text-xs text-slate-400 font-sans">/ ${it.max}</span></div>
+                </div>
+            `).join('');
+
+            // Render Badges
+            const unlockedCount = getUnlockedBadgesCount();
+            document.getElementById('reportBadgeSummary').textContent = `${unlockedCount} / ${badgesList.length} Terbuka`;
+            document.getElementById('badgesGrid').innerHTML = badgesList.map(b => {
+                const unlocked = b.check(state);
+                return `
+                    <div class="p-4 rounded-2xl border-2 text-center transition ${unlocked ? 'bg-amber-50 border-amber-400 shadow-sm' : 'bg-slate-100 border-slate-200 opacity-55 grayscale'}">
+                        <div class="text-4xl mb-1.5">${b.icon}</div>
+                        <h4 class="font-extrabold text-xs text-slate-800">${b.title}</h4>
+                        <p class="text-[11px] text-slate-500 mt-1">${b.desc}</p>
+                        <span class="inline-block mt-2 text-[10px] font-extrabold px-2 py-0.5 rounded-full ${unlocked ? 'bg-emerald-500 text-white' : 'bg-slate-300 text-slate-600'}">
+                            ${unlocked ? 'TERBUKA ✨' : 'TERKUNCI 🔒'}
+                        </span>
+                    </div>
+                `;
+            }).join('');
+
+            // Refleksi
+            const refInput = document.getElementById('reflectionInput');
+            if (refInput && state.reflection && !refInput.value) {
+                refInput.value = state.reflection;
+            }
+        }
+
+        function saveReflection() {
+            playSound('correct');
+            state.reflection = document.getElementById('reflectionInput').value;
+            saveState();
+            showToast('Catatan refleksi belajarmu berhasil disimpan! 🌟');
+        }
+
+        function confirmResetProgress() {
+            playSound('click');
+            const modal = document.getElementById('customModal');
+            modal.classList.remove('hidden');
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                state = JSON.parse(JSON.stringify(defaultState));
+                saveState();
+                closeModal();
+                initOpenBoxGame();
+                initDragDropGame();
+                initFillBlankGame();
+                initMatchingGame();
+                initPGQuiz();
+                showToast('Semua progres telah direset ke awal! 🔄');
+            };
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        /* =========================================================
+           9. INISIALISASI SAAT HALAMAN DIMUAT
+           ========================================================= */
+        window.addEventListener('DOMContentLoaded', () => {
+            renderMateriCards('semua');
+            renderSimControls();
+            updateSimVisual();
+
+            initOpenBoxGame();
+            initDragDropGame();
+            initFillBlankGame();
+            initMatchingGame();
+            initPGQuiz();
+
+            updateGlobalUI();
+        });
+    </script>
+</body>
+</html>
